@@ -25,7 +25,7 @@
         <input type="email" id="email" placeholder="Email" required>
 
         <div class="pw-box">
-          <input type="password" id="password" placeholder="Password (min. 6 characters)" required>
+          <input type="password" id="password" placeholder="Password (min. 8 characters)" required>
           <button type="button" class="eye" onclick="togglePassword('password', this)">Show</button>
         </div>
 
@@ -47,7 +47,7 @@
           <p id="resetQuestion"></p>
           <input type="text" id="resetAnswer" placeholder="Full name on the account">
           <div class="pw-box">
-            <input type="password" id="resetPassword" placeholder="New password (min. 6 characters)">
+            <input type="password" id="resetPassword" placeholder="New password (min. 8 characters)">
             <button type="button" class="eye" onclick="togglePassword('resetPassword', this)">Show</button>
           </div>
         </div>
@@ -108,8 +108,8 @@
         </div>
         <div class="notice">
           <div class="notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
-          <p class="notice-title">Sample Money Only</p>
-          <p class="notice-text">This tracker uses fictional amounts. No real money involved.</p>
+          <p class="notice-title">Expenses tracker</p>
+          <p class="notice-text"> fictional amounts. No real money involved.</p>
         </div>
       </div>
     </aside>
@@ -133,7 +133,7 @@
         </div>
         <div class="card expense">
           <div class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
-          <div><p>Expense</p><h2 id="expense">₱0</h2></div>
+          <div><p>Expenses</p><h2 id="expense">₱0</h2></div>
         </div>
         <div class="card goals">
           <div class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5"/></svg></div>
@@ -158,7 +158,7 @@
             <form id="txForm" onsubmit="addTransaction(event)">
               <div class="toggle">
                 <button type="button" id="btnIncome" class="on-income" onclick="setType('income')">Income</button>
-                <button type="button" id="btnExpense" onclick="setType('expense')">Expense</button>
+                <button type="button" id="btnExpense" onclick="setType('expense')">Expenses</button>
               </div>
               <input type="text" id="desc" placeholder="Description" maxlength="100" required>
               <div class="row">
@@ -233,7 +233,7 @@
       <div class="tiles">
         <div class="tile"><small>Transactions</small><b id="dCount"></b></div>
         <div class="tile in"><small>Total income</small><b id="dIncome"></b></div>
-        <div class="tile out"><small>Total expense</small><b id="dExpense"></b></div>
+        <div class="tile out"><small>Total expenses</small><b id="dExpense"></b></div>
         <div class="tile bal"><small>Available balance</small><b id="dBalance"></b></div>
       </div>
 
