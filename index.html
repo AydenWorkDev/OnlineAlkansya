@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Alkansya</title>
+  <link rel="icon" href="Logo/OnlineAlkanysa_Logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ===== LOGIN / SIGN UP PAGE ===== -->
+  <div id="authView" class="auth-wrap">
+    <div class="auth-box">
+      <div class="brand"><img src="Logo/OnlineAlkanysa_Logo.png" alt="logo"> Online Alkansya</div>
+
+      <div class="tabs" id="tabs">
+        <button type="button" id="tabLogin" class="active" onclick="setMode('login')">Log in</button>
+        <button type="button" id="tabSignup" onclick="setMode('signup')">Sign up</button>
+      </div>
+
+      <!-- login and signup form -->
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <input type="text" id="name" class="hidden" placeholder="Your name">
+        <input type="email" id="email" placeholder="Email" required>
+
+        <div class="pw-box">
+          <input type="password" id="password" placeholder="Password (min. 6 characters)" required>
+          <button type="button" class="eye" onclick="togglePassword('password', this)">Show</button>
+        </div>
+
+        <div class="pw-box hidden" id="confirmBox">
+          <input type="password" id="password2" placeholder="Confirm password">
+          <button type="button" class="eye" onclick="togglePassword('password2', this)">Show</button>
+        </div>
+
+        <button type="button" id="forgotLink" class="link" onclick="showReset(true)">Forgot password?</button>
+        <p class="message" id="authMsg"></p>
+        <button type="submit" id="authBtn">Log in</button>
+      </form>
+
+      <!-- forgot password form -->
+      <form id="resetForm" class="hidden" onsubmit="handleReset(event)">
+        <h3>Reset password</h3>
+        <input type="email" id="resetEmail" placeholder="Your account email" required>
+        <div id="resetStep2" class="hidden">
+          <p id="resetQuestion"></p>
+          <input type="text" id="resetAnswer" placeholder="Full name on the account">
+          <div class="pw-box">
+            <input type="password" id="resetPassword" placeholder="New password (min. 6 characters)">
+            <button type="button" class="eye" onclick="togglePassword('resetPassword', this)">Show</button>
+          </div>
+        </div>
+        <p class="message" id="resetMsg"></p>
+        <button type="submit" id="resetBtn">Continue</button>
+        <button type="button" class="link" onclick="showReset(false)">Back to log in</button>
+      </form>
+
+      <p class="hint">Your records are saved in this browser only.</p>
+    </div>
+  </div>
+
+  <!-- ===== APP (after login) ===== -->
+  <div id="appView" class="hidden">
+    <!-- top bar with hamburger button (phones only) -->
+    <div class="topbar">
+      <button type="button" class="burger" id="burger" onclick="toggleMenu()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="brand"><img src="logo.svg" alt="logo"> Alkansya</div>
+    </div>
+
+    <!-- dark background behind the open menu (phones only) -->
+    <div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="close-menu" onclick="closeMenu()" aria-label="Close menu">×</button>
+      <div class="brand"><img src="logo.svg" alt="logo"> Alkansya</div>
+
+      <nav>
+        <p class="menu-label">Menu</p>
+        <button type="button" id="navDashboard" class="nav active" onclick="showPage('dashboard')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          Dashboard
+        </button>
+        <button type="button" id="navGoals" class="nav" onclick="showPage('goals')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5"/></svg>
+          Goals
+        </button>
+        <button type="button" id="navProfile" class="nav" onclick="showPage('profile')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+          Profile
+        </button>
+        <button type="button" id="navSettings" class="nav" onclick="showPage('settings')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+          Settings
+        </button>
+      </nav>
+
+      <div class="user-area">
+        <div class="user-row">
+          <div class="side-avatar" id="sideAvatar"></div>
+          <div class="user-text">
+            <small>Signed in as</small>
+            <span id="userName"></span>
+          </div>
+        </div>
+        <div class="notice">
+          <div class="notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <p class="notice-title">Sample Money Only</p>
+          <p class="notice-text">This tracker uses fictional amounts. No real money involved.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== PAGE CONTENT (right side) ===== -->
+    <div class="content">
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <main id="pageDashboard">
+      <h1 id="greeting"></h1>
+      <p class="date" id="today"></p>
+
+      <div class="cards">
+        <div class="card balance">
+          <div class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1"/></svg></div>
+          <div><p>Available balance</p><h2 id="balance">₱0</h2></div>
+        </div>
+        <div class="card income">
+          <div class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+          <div><p>Income</p><h2 id="income">₱0</h2></div>
+        </div>
+        <div class="card expense">
+          <div class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+          <div><p>Expense</p><h2 id="expense">₱0</h2></div>
+        </div>
+        <div class="card goals">
+          <div class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5"/></svg></div>
+          <div><p>Saved for goals</p><h2 id="saved">₱0</h2></div>
+        </div>
+      </div>
+
+      <!-- spending limit (depends on the user's own money) -->
+      <section class="box limit-box">
+        <div class="limit-top">
+          <h3>Spending limit</h3>
+          <span id="limitText"></span>
+        </div>
+        <div class="limit-bar"><div class="limit-fill" id="limitFill"></div></div>
+        <p class="note" id="limitNote"></p>
+      </section>
+
+      <div class="columns">
+        <div>
+          <section class="box">
+            <h3>Add a transaction</h3>
+            <form id="txForm" onsubmit="addTransaction(event)">
+              <div class="toggle">
+                <button type="button" id="btnIncome" class="on-income" onclick="setType('income')">Income</button>
+                <button type="button" id="btnExpense" onclick="setType('expense')">Expense</button>
+              </div>
+              <input type="text" id="desc" placeholder="Description" maxlength="100" required>
+              <div class="row">
+                <input type="number" id="amount" placeholder="Amount" min="0.01" step="0.01" required>
+                <select id="category"></select>
+              </div>
+              <p class="message" id="txMsg"></p>
+              <button type="submit" id="addBtn">Add income</button>
+            </form>
+          </section>
+
+          <section class="box">
+            <h3>Transaction History</h3>
+            <div class="filters">
+              <input type="text" id="search" placeholder="Search..." oninput="render()">
+              <button type="button" id="fAll" class="chip active" onclick="setFilter('all')">All</button>
+              <button type="button" id="fIncome" class="chip" onclick="setFilter('income')">Income</button>
+              <button type="button" id="fExpense" class="chip" onclick="setFilter('expense')">Expense</button>
+            </div>
+            <ul id="list"></ul>
+          </section>
+        </div>
+
+        <div>
+          <section class="box">
+            <h3>Salary tracker</h3>
+            <div class="detail"><span>Total salary received</span><b id="salTotal">₱0</b></div>
+            <div class="detail"><span>Salary payments</span><b id="salCount">0</b></div>
+            <div class="detail"><span>Last salary</span><b id="salLast">None yet</b></div>
+          </section>
+
+          <section class="box">
+            <h3>Where your money goes</h3>
+            <div id="bars"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== GOALS PAGE ===== -->
+    <main id="pageGoals" class="hidden">
+      <div class="page-head"><h1>Savings Goals</h1><p>Plan what you want to buy and track your progress</p></div>
+
+      <section class="box">
+        <h3>New goal</h3>
+        <form class="goal-form" id="goalForm" onsubmit="addGoal(event)">
+          <input type="text" id="goalName" placeholder="What do you want to buy? (e.g. iPhone 18)" maxlength="60" required>
+          <input type="number" id="goalTarget" placeholder="Price (₱)" min="1" step="0.01" required>
+          <button type="submit">Add goal</button>
+        </form>
+        <p class="message" id="goalMsg"></p>
+      </section>
+
+      <div id="goalList"></div>
+    </main>
+
+    <!-- ===== PROFILE PAGE ===== -->
+    <main id="pageProfile" class="hidden">
+      <div class="page-head"><h1>My Profile</h1><p>Your account at a glance</p></div>
+
+      <section class="banner">
+        <div class="banner-cover"></div>
+        <div class="banner-body">
+          <div class="big-avatar" id="pAvatar"></div>
+          <div>
+            <h2 id="pName"></h2>
+            <p id="pEmail"></p>
+          </div>
+        </div>
+      </section>
+
+      <div class="tiles">
+        <div class="tile"><small>Transactions</small><b id="dCount"></b></div>
+        <div class="tile in"><small>Total income</small><b id="dIncome"></b></div>
+        <div class="tile out"><small>Total expense</small><b id="dExpense"></b></div>
+        <div class="tile bal"><small>Available balance</small><b id="dBalance"></b></div>
+      </div>
+
+      <section class="box">
+        <h3>Account details</h3>
+        <div class="detail"><span>Full name</span><b id="dName"></b></div>
+        <div class="detail"><span>Email</span><b id="dEmail"></b></div>
+        <div class="detail"><span>Member since</span><b id="dSince"></b></div>
+      </section>
+    </main>
+
+    <!-- ===== SETTINGS PAGE ===== -->
+    <main id="pageSettings" class="hidden">
+      <div class="page-head"><h1>Settings</h1><p>Manage your account</p></div>
+
+      <section class="box">
+        <div class="set-head">
+          <div class="set-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+          <div><h3>Edit profile</h3><p class="note">Change the name shown in the app.</p></div>
+        </div>
+        <form class="stack" onsubmit="saveName(event)">
+          <input type="text" id="setName" placeholder="Full name" maxlength="40" required>
+          <p class="note">Your email can’t be changed.</p>
+          <p class="message" id="nameMsg"></p>
+          <button type="submit">Save name</button>
+        </form>
+      </section>
+
+      <section class="box">
+        <div class="set-head">
+          <div class="set-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+          <div><h3>Change password</h3><p class="note">Use at least 6 characters.</p></div>
+        </div>
+        <form class="stack" id="pwForm" onsubmit="changePassword(event)">
+          <div class="pw-box">
+            <input type="password" id="currentPw" placeholder="Current password" required>
+            <button type="button" class="eye" onclick="togglePassword('currentPw', this)">Show</button>
+          </div>
+          <div class="pw-box">
+            <input type="password" id="newPw" placeholder="New password (min. 6 characters)" required>
+            <button type="button" class="eye" onclick="togglePassword('newPw', this)">Show</button>
+          </div>
+          <div class="pw-box">
+            <input type="password" id="newPw2" placeholder="Confirm new password" required>
+            <button type="button" class="eye" onclick="togglePassword('newPw2', this)">Show</button>
+          </div>
+          <p class="message" id="pwMsg"></p>
+          <button type="submit">Update password</button>
+        </form>
+      </section>
+
+      <section class="box">
+        <div class="set-head">
+          <div class="set-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/></svg></div>
+          <div><h3>Limits</h3><p class="note">Control how much you can add.</p></div>
+        </div>
+        <form class="stack" onsubmit="saveLimits(event)">
+          <label class="field-label" for="setMax">Max amount per entry (₱)</label>
+          <input type="number" id="setMax" min="1" step="1" required>
+          <p class="note">Each income or expense can’t be more than this amount. Your spending limit is your own money in the tracker: you can’t spend more than you have.</p>
+          <p class="message" id="limitMsg"></p>
+          <button type="submit">Save limit</button>
+        </form>
+      </section>
+
+      <section class="box">
+        <div class="set-head">
+          <div class="set-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></div>
+          <div><h3>Log out</h3><p class="note">Sign out of your account on this device.</p></div>
+        </div>
+        <button type="button" class="secondary" onclick="logout()">Log out</button>
+      </section>
+
+      <section class="box danger-box">
+        <div class="set-head">
+          <div class="set-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg></div>
+          <div><h3>Danger zone</h3><p class="note">These actions cannot be undone.</p></div>
+        </div>
+        <div class="stack">
+          <button type="button" class="danger" onclick="clearTransactions()">Clear all my transactions</button>
+          <button type="button" class="danger" onclick="deleteAccount()">Delete my account</button>
+          <p class="message" id="dangerMsg"></p>
+        </div>
+      </section>
+    </main>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
