@@ -641,3 +641,75 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
 .goal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 .goal-actions button { flex: 1; }
 .goal-actions .secondary { width: auto; }
+
+/* ===== home page (landing) ===== */
+.landing { background: #f3f5fb; min-height: 100vh; }
+.l-hero { background: linear-gradient(160deg, #101a3a, #2b2f8f); color: white; }
+.l-nav { max-width: 1100px; margin: 0 auto; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.l-nav-btns { display: flex; gap: 8px; }
+.ghost { background: transparent; color: white; border: 1px solid #ffffff55; }
+.light { background: white; color: #1d2a6b; }
+.big { padding: 14px 24px; font-size: 16px; }
+
+.l-hero-inner { max-width: 1100px; margin: 0 auto; padding: 30px 24px 70px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; }
+.l-badge { display: inline-block; background: #ffffff1f; border: 1px solid #ffffff33; padding: 6px 14px; border-radius: 99px; font-size: 13px; margin-bottom: 18px; }
+.l-hero h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1.12; margin: 0 0 16px; }
+.l-hero p { font-size: 17px; line-height: 1.6; color: #cfd6f2; margin: 0 0 26px; }
+.l-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.l-btns.center { justify-content: center; margin-top: 28px; }
+
+.mock { background: #ffffff14; border: 1px solid #ffffff26; border-radius: 20px; padding: 18px; display: grid; gap: 14px; }
+.mock-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mock-card { border-radius: 12px; padding: 12px; color: white; }
+.mock-card small { display: block; opacity: 0.85; margin-bottom: 4px; }
+.mock-card b { font-size: 16px; }
+.m-in { background: #12a566; } .m-out { background: #e5384f; } .m-bal { background: #5b5bf0; }
+.mock-goal { background: white; color: #222c4a; border-radius: 12px; padding: 16px; }
+.mock-goal-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.mock-goal small { display: block; margin-top: 8px; color: #6b7490; }
+
+.l-section { max-width: 1100px; margin: 0 auto; padding: 60px 24px 10px; }
+.l-section h2 { text-align: center; font-size: 30px; margin: 0 0 10px; }
+.l-sub { text-align: center; max-width: 640px; margin: 0 auto 32px; color: #6b7490; line-height: 1.6; }
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.feature { background: white; border: 1px solid #e8ebf4; border-radius: 16px; padding: 22px; box-shadow: 0 6px 20px #1b2a5a0d; }
+.feature h3 { margin: 14px 0 6px; }
+.feature p { margin: 0; color: #6b7490; line-height: 1.55; font-size: 15px; }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+.step { background: white; border: 1px solid #e8ebf4; border-radius: 16px; padding: 22px; text-align: center; }
+.step span { width: 40px; height: 40px; border-radius: 50%; background: #5b5bf0; color: white; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; }
+.step h3 { margin: 12px 0 6px; }
+.step p { margin: 0; color: #6b7490; line-height: 1.5; font-size: 15px; }
+
+.l-notice { display: flex; gap: 16px; align-items: center; background: #101a3a; color: white; border-radius: 16px; padding: 22px; }
+.l-notice h3 { margin: 0 0 4px; }
+.l-notice p { margin: 0; color: #b4bedc; line-height: 1.5; }
+.l-notice .notice-icon { margin: 0; width: 40px; height: 40px; flex-shrink: 0; }
+.l-notice .notice-icon svg { width: 22px; height: 22px; }
+
+.l-footer { text-align: center; padding: 40px 20px; color: #6b7490; font-size: 14px; }
+.back-link { justify-self: start; margin: -8px 0 6px -4px; text-align: left; }
+
+@media (max-width: 800px) {
+  .l-hero-inner { grid-template-columns: 1fr; padding-bottom: 50px; }
+  .steps { grid-template-columns: 1fr; }
+  .l-nav .brand { font-size: 17px; }
+}
+
+.l-nav-btns button { white-space: nowrap; }
+@media (max-width: 480px) {
+  .l-nav { padding: 14px 16px; }
+  .l-nav .brand { font-size: 15px; }
+  .l-nav .brand img { width: 32px; height: 32px; }
+  .l-nav-btns button { padding: 9px 12px; font-size: 14px; }
+}
+
+/* ===== login / sign up form inside the home page ===== */
+
+/* ===== "See it in action" examples on the home page ===== */
+.examples { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.example h3 { margin: 0 0 4px; }
+.example > p { margin: 0 0 14px; color: #6b7490; line-height: 1.5; font-size: 15px; }
+.example .mock { background: linear-gradient(160deg, #101a3a, #2b2f8f); border-color: transparent; }
+@media (max-width: 800px) { .examples { grid-template-columns: 1fr; } }
