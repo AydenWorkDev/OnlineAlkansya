@@ -14,7 +14,7 @@ var filter = "all";        // all, income or expense
 var resetStep = 1;         // step of the forgot password form
 
 var categories = {
-  income: ["Salary", "Business", "Allowance", "Other"],
+  income: ["Salary", "Business", "Gift", "Other"],
   expense: ["Food", "Transport", "Bills", "Shopping", "Health", "Other"]
 };
 
@@ -72,6 +72,23 @@ function findUser(email) {
 
 function formatMoney(number) {
   return "₱" + Number(number).toLocaleString("en-PH", { maximumFractionDigits: 2 });
+}
+
+// ---------- home page (before login and signup) ----------
+function showLanding() {
+  $("appView").classList.add("hidden");
+  $("authView").classList.add("hidden");
+  $("landingView").classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+// open the separate login or signup page
+function openAuth(newMode) {
+  $("landingView").classList.add("hidden");
+  $("authView").classList.remove("hidden");
+  showReset(false);
+  setMode(newMode);
+  window.scrollTo(0, 0);
 }
 
 // ---------- login and signup ----------
@@ -240,6 +257,7 @@ function startApp(user) {
 
   $("authForm").reset();
   $("authMsg").textContent = "";
+  $("landingView").classList.add("hidden");
   $("authView").classList.add("hidden");
   $("appView").classList.remove("hidden");
 
@@ -253,9 +271,8 @@ function logout() {
   transactions = [];
   goals = [];
   localStorage.removeItem("alkansya_loggedin");
-  $("appView").classList.add("hidden");
-  $("authView").classList.remove("hidden");
   setMode("login");
+  showLanding();   // after logout, go back to the home page
 }
 
 // ---------- transactions ----------
@@ -858,6 +875,7 @@ function deleteAccount() {
   localStorage.removeItem("alkansya_goals_" + currentUser.email);
 
   logout();
+  openAuth("login");
   showAuthMessage("Your account was deleted.", true);
 }
 
@@ -866,4 +884,6 @@ loadUsers();
 var savedEmail = localStorage.getItem("alkansya_loggedin");
 if (savedEmail && findUser(savedEmail) !== null) {
   startApp(findUser(savedEmail));
+} else {
+  showLanding();   // not logged in: show the home page first
 }
