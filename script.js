@@ -14,7 +14,7 @@ var filter = "all";        // all, income or expense
 var resetStep = 1;         // step of the forgot password form
 
 var categories = {
-  income: ["Salary", "Business", "Gift", "Other"],
+  income: ["Salary", "Business", "Allowance", "Other"],
   expense: ["Food", "Transport", "Bills", "Shopping", "Health", "Other"]
 };
 
