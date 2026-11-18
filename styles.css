@@ -618,7 +618,7 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
 .sidebar .notice-title { margin: 0 0 6px; font-size: 15px; font-weight: bold; color: white; }
 .sidebar .notice-text { margin: 0; font-size: 13px; line-height: 1.45; color: #b4bedc; }
 
-.secondary { width: 100%; background: #eef0f8; color: #222c4a; }
+.secondary { width: 50%; background: #eef0f8; color: #222c4a; }
 .secondary:hover { background: #e2e6f4; opacity: 1; }
 
 /* ===== goals, salary tracker, 4 summary cards ===== */
