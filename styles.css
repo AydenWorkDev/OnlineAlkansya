@@ -618,7 +618,7 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
 .sidebar .notice-title { margin: 0 0 6px; font-size: 15px; font-weight: bold; color: white; }
 .sidebar .notice-text { margin: 0; font-size: 13px; line-height: 1.45; color: #b4bedc; }
 
-.secondary { width: 50%; background: #eef0f8; color: #222c4a; }
+.secondary { width: 100%; background: #eef0f8; color: #222c4a; }
 .secondary:hover { background: #e2e6f4; opacity: 1; }
 
 /* ===== goals, salary tracker, 4 summary cards ===== */
@@ -713,3 +713,18 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
 .example > p { margin: 0 0 14px; color: #6b7490; line-height: 1.5; font-size: 15px; }
 .example .mock { background: linear-gradient(160deg, #101a3a, #2b2f8f); border-color: transparent; }
 @media (max-width: 800px) { .examples { grid-template-columns: 1fr; } }
+
+/* ===== weekly budget and the better expense breakdown ===== */
+.week-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 14px; }
+#weekRange { margin: -6px 0 12px; }
+#weekNote { margin-top: 10px; }
+
+.range { margin-bottom: 6px; }
+.donutbox { display: flex; justify-content: center; margin: 8px 0 12px; }
+.donut { width: 170px; height: 170px; border-radius: 50%; display: grid; place-items: center; background: #eef0f8; }
+.donut > div { width: 112px; height: 112px; border-radius: 50%; background: white; display: grid; place-items: center; text-align: center; font-size: 12px; color: #6b7490; }
+.donut b { display: block; color: #222c4a; font-size: 17px; overflow-wrap: anywhere; }
+.top-cat { text-align: center; margin-bottom: 14px; font-weight: bold; color: #222c4a; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
+
+.range .chip { padding: 7px 12px; font-size: 13px; }
