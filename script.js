@@ -14,8 +14,8 @@ var filter = "all";        // all, income or expense
 var resetStep = 1;         // step of the forgot password form
 
 var categories = {
-  income: ["Salary", "Business", "Allowance", "Other"],
-  expense: ["Food", "Transport", "Bills", "Shopping", "Health", "Other"]
+  income: ["Allowance", "Part-time job", "Gift Money", "Scholarship", "Other"],
+  expense: ["Food", "Transport", "Bills", "Clothing", "Mobile Load & internet", "Personal Needs", "Entertainment", "Other"]
 };
 
 var DEFAULT_MAX = 1000000;   // biggest amount for one entry (can be changed in Settings)
@@ -262,6 +262,8 @@ function startApp(user) {
   $("appView").classList.remove("hidden");
 
   setType("income");
+  $("weekInput").value = currentUser.weeklyBudget || "";
+  setRange("all");
   showPage("dashboard");
   render();
 }
@@ -354,7 +356,8 @@ function setFilter(newFilter) {
 // ---------- show everything on the screen ----------
 function render() {
   showSummary();
-  showSalary();
+  showAllowance();
+  showWeekly();
   showLimit();
   showBars();
   showList();
@@ -368,44 +371,103 @@ function showSummary() {
   $("balance").textContent = formatMoney(totals.available);
 }
 
-// bars that show how much was spent on each category
+// ---------- expense breakdown (donut chart + list) ----------
+var categoryColors = {
+  "Food": "#f59e0b",
+  "Transport": "#0ea5e9",
+  "Bills": "#8b5cf6",
+  "Shopping": "#ec4899",
+  "Health": "#12a566",
+  "Other": "#94a3b8"
+};
+var range = "all";   // which time range the breakdown shows: week, month or all
+
+function setRange(newRange) {
+  range = newRange;
+  $("rWeek").className = (range === "week") ? "chip active" : "chip";
+  $("rMonth").className = (range === "month") ? "chip active" : "chip";
+  $("rAll").className = (range === "all") ? "chip active" : "chip";
+  showBars();
+}
+
+// is this transaction inside the chosen time range?
+function inRange(t) {
+  if (range === "all") return true;
+  var date = txDate(t);
+  var now = new Date();
+  if (range === "week") {
+    var start = startOfWeek(now);
+    var end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    return date >= start && date < end;
+  }
+  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
+}
+
 function showBars() {
   var box = $("bars");
   box.innerHTML = "";
 
+  // add up the expenses of each category
   var totals = {};
   var totalExpense = 0;
   for (var i = 0; i < transactions.length; i++) {
     var t = transactions[i];
-    if (t.type === "expense") {
+    if (t.type === "expense" && inRange(t)) {
       var cat = t.category || "Other";
       totals[cat] = (totals[cat] || 0) + t.amount;
       totalExpense += t.amount;
     }
   }
 
-  if (totalExpense === 0) {
-    box.appendChild(makeEl("p", "empty", "Add an expense to see your spending."));
+  $("donutTotal").textContent = formatMoney(totalExpense);
+
+  // put the categories in a list, biggest first
+  var list = [];
+  for (var name in totals) {
+    list.push([name, totals[name]]);
+  }
+  list.sort(function (a, b) { return b[1] - a[1]; });
+
+  if (list.length === 0) {
+    $("donut").style.background = "#eef0f8";
+    $("topCat").textContent = "";
+    var label = (range === "week") ? "this week" : (range === "month") ? "this month" : "yet";
+    box.appendChild(makeEl("p", "empty", "No expenses " + label + "."));
     return;
   }
 
-  for (var name in totals) {
-    var percent = Math.round(totals[name] / totalExpense * 100);
+  var stops = [];
+  var start = 0;
+  for (var k = 0; k < list.length; k++) {
+    var percent = list[k][1] / totalExpense * 100;
+    var color = categoryColors[list[k][0]] || "#94a3b8";
+    stops.push(color + " " + start + "% " + (start + percent) + "%");
+    start += percent;
 
     var row = makeEl("div", "bar-row");
     var top = makeEl("div", "top");
-    top.appendChild(makeEl("span", "", name));
-    top.appendChild(makeEl("span", "", formatMoney(totals[name]) + " (" + percent + "%)"));
+    var left = makeEl("span", "");
+    var dot = makeEl("i", "dot");
+    dot.style.background = color;
+    left.appendChild(dot);
+    left.appendChild(document.createTextNode(list[k][0]));
+    top.appendChild(left);
+    top.appendChild(makeEl("span", "", formatMoney(list[k][1]) + " (" + Math.round(percent) + "%)"));
 
     var bg = makeEl("div", "bar-bg");
     var fill = makeEl("div", "bar-fill");
     fill.style.width = percent + "%";
+    fill.style.background = color;
     bg.appendChild(fill);
 
     row.appendChild(top);
     row.appendChild(bg);
     box.appendChild(row);
   }
+
+  $("donut").style.background = "conic-gradient(" + stops.join(", ") + ")";
+  $("topCat").textContent = "Biggest spending: " + list[0][0] + " (" + Math.round(list[0][1] / totalExpense * 100) + "%)";
 }
 
 function showList() {
@@ -612,6 +674,7 @@ function buyGoal(id) {
     amount: goal.saved,
     type: "expense",
     category: "Shopping",
+    goal: true,                 // bought from a goal (not counted in the weekly budget)
     date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
   });
   removeGoal(id);
@@ -716,25 +779,119 @@ function showGoals() {
   }
 }
 
-// ---------- salary tracker ----------
-function showSalary() {
+// ---------- allowance tracker ----------
+function showAllowance() {
   var total = 0;
   var count = 0;
   var last = null;
 
-  // transactions are newest first, so the first salary we find is the last one
+  // transactions are newest first, so the first allowance we find is the last one
+  // (old entries saved as "Salary" are counted too)
   for (var i = 0; i < transactions.length; i++) {
     var t = transactions[i];
-    if (t.type === "income" && t.category === "Salary") {
+    if (t.type === "income" && (t.category === "Allowance" || t.category === "Salary")) {
       total += t.amount;
       count++;
       if (last === null) last = t;
     }
   }
 
-  $("salTotal").textContent = formatMoney(total);
-  $("salCount").textContent = count;
-  $("salLast").textContent = last ? formatMoney(last.amount) + " • " + last.date : "None yet";
+  $("allowTotal").textContent = formatMoney(total);
+  $("allowCount").textContent = count;
+  $("allowLast").textContent = last ? formatMoney(last.amount) + " • " + last.date : "None yet";
+}
+
+// ---------- weekly budget (Monday to Sunday) ----------
+// the date of a transaction (old ones only have the date text)
+function txDate(t) {
+  var date = new Date(t.date);
+  if (isNaN(date.getTime())) {
+    date = new Date(t.id);
+  }
+  return date;
+}
+
+// the Monday of the week that contains this date
+function startOfWeek(date) {
+  var d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  var day = d.getDay();                       // 0 = Sunday, 1 = Monday ... 6 = Saturday
+  var sinceMonday = (day === 0) ? 6 : day - 1;
+  d.setDate(d.getDate() - sinceMonday);
+  return d;
+}
+
+// expenses of this week (money used to buy a goal is not counted)
+function spentThisWeek() {
+  var start = startOfWeek(new Date());
+  var end = new Date(start);
+  end.setDate(end.getDate() + 7);
+
+  var total = 0;
+  for (var i = 0; i < transactions.length; i++) {
+    var t = transactions[i];
+    if (t.type !== "expense" || t.goal) continue;
+    var date = txDate(t);
+    if (date >= start && date < end) {
+      total += t.amount;
+    }
+  }
+  return total;
+}
+
+function showWeekly() {
+  var budget = currentUser.weeklyBudget || 0;
+  var spent = spentThisWeek();
+  var now = new Date();
+  var start = startOfWeek(now);
+  var end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  var options = { month: "short", day: "numeric" };
+  $("weekRange").textContent = "This week: " + start.toLocaleDateString("en-US", options) + " to " + end.toLocaleDateString("en-US", options) + " • goal purchases are not counted";
+
+  if (budget <= 0) {
+    $("weekText").textContent = formatMoney(spent) + " spent";
+    $("weekFill").style.width = "0%";
+    $("weekFill").className = "limit-fill";
+    $("weekNote").textContent = "Set a weekly budget below to see how much you can spend each day.";
+    return;
+  }
+
+  var daysLeft = 7 - ((now.getDay() + 6) % 7);   // days left in the week, including today
+  var left = budget - spent;
+  var percent = Math.round(spent / budget * 100);
+  var level = "limit-fill";
+  var note = formatMoney(left) + " left this week. About " + formatMoney(left / daysLeft) + " per day for the next " + daysLeft + (daysLeft === 1 ? " day." : " days.");
+
+  if (left < 0) {
+    level = "limit-fill full";
+    note = "You are over your weekly budget by " + formatMoney(-left) + ".";
+  } else if (percent >= 80) {
+    level = "limit-fill warn";
+  }
+
+  $("weekText").textContent = formatMoney(spent) + " of " + formatMoney(budget);
+  $("weekFill").style.width = Math.min(percent, 100) + "%";
+  $("weekFill").className = level;
+  $("weekNote").textContent = note;
+}
+
+function saveWeekly(event) {
+  event.preventDefault();
+  var budget = Number($("weekInput").value || 0);
+
+  if (budget < 0 || budget > 100000000) {
+    setMsg("weekMsg", "The weekly budget must be between ₱0 and ₱100,000,000.");
+    return;
+  }
+
+  currentUser.weeklyBudget = budget;
+  saveUsers();
+  showWeekly();
+  if (budget > 0) {
+    setMsg("weekMsg", "Weekly budget saved.", true);
+  } else {
+    setMsg("weekMsg", "Weekly budget removed.", true);
+  }
 }
 
 // ---------- hamburger menu (phones) ----------
