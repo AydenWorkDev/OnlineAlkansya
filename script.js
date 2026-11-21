@@ -909,16 +909,19 @@ function closeMenu() {
   document.body.classList.remove("menu-open");
 }
 
-// ---------- pages: dashboard, profile, settings ----------
+// ---------- pages: dashboard, transactions, goals, profile, settings ----------
 function showPage(page) {
   closeMenu();   // close the menu on phones after choosing a page
-  var pages = ["Dashboard", "Goals", "Profile", "Settings"];
+  var pages = ["Dashboard", "History", "Goals", "Profile", "Settings"];
   for (var i = 0; i < pages.length; i++) {
     var isThis = (pages[i].toLowerCase() === page);
     $("page" + pages[i]).classList.toggle("hidden", !isThis);
     $("nav" + pages[i]).className = isThis ? "nav active" : "nav";
   }
 
+  if (page === "history") {
+    showList();
+  }
   if (page === "goals") {
     showGoals();
   }

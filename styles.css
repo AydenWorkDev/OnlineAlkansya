@@ -728,3 +728,16 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
 
 .range .chip { padding: 7px 12px; font-size: 13px; }
+
+/* ===== use the full width: no empty space on the sides of the dashboard ===== */
+#pageDashboard,
+#pageHistory {
+  max-width: none;
+  margin: 0;
+}
+
+.columns { grid-template-columns: 1fr 1fr; }
+
+@media (max-width: 800px) {
+  .columns { grid-template-columns: 1fr; }
+}

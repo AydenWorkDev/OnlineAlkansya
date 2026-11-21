@@ -226,6 +226,10 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
           Dashboard
         </button>
+        <button type="button" id="navHistory" class="nav" onclick="showPage('history')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Transactions
+        </button>
         <button type="button" id="navGoals" class="nav" onclick="showPage('goals')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5"/></svg>
           Goals
@@ -309,6 +313,7 @@
       </section>
 
       <div class="columns">
+        <!-- left column -->
         <div>
           <section class="box">
             <h3>Add a transaction</h3>
@@ -328,25 +333,15 @@
           </section>
 
           <section class="box">
-            <h3>Transaction History</h3>
-            <div class="filters">
-              <input type="text" id="search" placeholder="Search..." oninput="render()">
-              <button type="button" id="fAll" class="chip active" onclick="setFilter('all')">All</button>
-              <button type="button" id="fIncome" class="chip" onclick="setFilter('income')">Income</button>
-              <button type="button" id="fExpense" class="chip" onclick="setFilter('expense')">Expenses</button>
-            </div>
-            <ul id="list"></ul>
-          </section>
-        </div>
-
-        <div>
-          <section class="box">
             <h3>Allowance tracker</h3>
             <div class="detail"><span>Total allowance received</span><b id="allowTotal">₱0</b></div>
             <div class="detail"><span>Times received</span><b id="allowCount">0</b></div>
             <div class="detail"><span>Last allowance</span><b id="allowLast">None yet</b></div>
           </section>
+        </div>
 
+        <!-- right column -->
+        <div>
           <section class="box">
             <h3>Where your money goes</h3>
             <div class="filters range">
@@ -360,6 +355,21 @@
           </section>
         </div>
       </div>
+    </main>
+
+    <!-- ===== TRANSACTION HISTORY PAGE ===== -->
+    <main id="pageHistory" class="hidden">
+      <div class="page-head"><h1>Transaction History</h1><p>All your income and expenses in one place</p></div>
+
+      <section class="box">
+        <div class="filters">
+          <input type="text" id="search" placeholder="Search..." oninput="render()">
+          <button type="button" id="fAll" class="chip active" onclick="setFilter('all')">All</button>
+          <button type="button" id="fIncome" class="chip" onclick="setFilter('income')">Income</button>
+          <button type="button" id="fExpense" class="chip" onclick="setFilter('expense')">Expenses</button>
+        </div>
+        <ul id="list"></ul>
+      </section>
     </main>
 
     <!-- ===== GOALS PAGE ===== -->
