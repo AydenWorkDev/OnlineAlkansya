@@ -731,13 +731,26 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
 
 /* ===== use the full width: no empty space on the sides of the dashboard ===== */
 #pageDashboard,
-#pageHistory {
+#pageHistory,
+#pageGoals,
+#pageProfile,
+#pageSettings {
   max-width: none;
   margin: 0;
 }
 
 .columns { grid-template-columns: 1fr 1fr; }
 
+/* settings: boxes sit in two columns so the wide page isn't stretched thin */
+#pageSettings:not(.hidden) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+  align-items: start;
+}
+#pageSettings .page-head { grid-column: 1 / -1; }
+
 @media (max-width: 800px) {
   .columns { grid-template-columns: 1fr; }
+  #pageSettings:not(.hidden) { display: block; }
 }
