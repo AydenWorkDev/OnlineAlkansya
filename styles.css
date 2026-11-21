@@ -749,8 +749,88 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
   align-items: start;
 }
 #pageSettings .page-head { grid-column: 1 / -1; }
+#pageSettings .user-box { grid-column: 1 / -1; }
+
+/* user details box in Settings */
+.user-card { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; padding-bottom: 14px; border-bottom: 1px solid #e8ebf4; }
+.user-card .big-avatar { width: 64px; height: 64px; font-size: 28px; border-width: 0; }
+.user-card-info { min-width: 0; }
+.user-card-info h2 { margin: 0 0 4px; font-size: 20px; overflow-wrap: anywhere; }
+.user-card-info p { margin: 0; color: #6b7490; overflow-wrap: anywhere; }
 
 @media (max-width: 800px) {
   .columns { grid-template-columns: 1fr; }
   #pageSettings:not(.hidden) { display: block; }
 }
+
+/* ===== sidebar: Menu group, Account group, logout icon ===== */
+.sidebar { overflow-y: auto; }
+.menu-label.account-label {
+  margin: 12px 0 4px 0;
+  padding: 16px 0 0 12px;
+  border-top: 1px solid #ffffff22;
+}
+.logout-icon {
+  margin-left: auto;
+  padding: 8px;
+  display: flex;
+  background: transparent;
+  color: #b4bedc;
+  border-radius: 10px;
+}
+.logout-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sidebar .logout-icon:hover { background: #e5384f; color: white; opacity: 1; }
+
+/* ===== budgets, categories, reports, help ===== */
+.tiles3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 800px) { .tiles3 { grid-template-columns: 1fr; } }
+
+.bud-row { display: grid; gap: 10px; padding: 14px 0; border-bottom: 1px solid #e8ebf4; }
+.bud-row:first-child { padding-top: 0; }
+.bud-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+#budMsg { margin: 14px 0 10px; }
+
+.chart-legend { display: flex; gap: 16px; margin-bottom: 14px; font-size: 13px; color: #6b7490; }
+.chart { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.chart-col { text-align: center; min-width: 0; }
+.chart-bars { height: 170px; display: flex; align-items: flex-end; justify-content: center; gap: 5px; border-bottom: 1px solid #e8ebf4; }
+.chart-bar { width: 40%; max-width: 26px; min-height: 2px; border-radius: 6px 6px 0 0; }
+.chart-bar.in { background: #12a566; }
+.chart-bar.out { background: #e5384f; }
+.chart-col small { display: block; margin-top: 6px; color: #6b7490; }
+
+.faq details { border-bottom: 1px solid #e8ebf4; padding: 12px 0; }
+.faq details:last-child { border-bottom: none; }
+.faq summary { cursor: pointer; font-weight: bold; }
+.faq details p { margin: 10px 0 0; color: #6b7490; line-height: 1.55; font-size: 15px; }
+
+/* ===== dashboard: overview chart, progress cards, recent transactions ===== */
+.dash-top { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
+.dash-side { display: grid; gap: 0; }
+@media (max-width: 800px) { .dash-top { grid-template-columns: 1fr; } }
+
+.ov-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 18px; }
+.ov-head h3 { margin: 0 0 2px; }
+.month-badge { background: #eceafe; color: #5b5bf0; padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+
+.ov-body { display: flex; gap: 10px; }
+.ov-axis { height: 202px; margin-top: -6px; display: flex; flex-direction: column; justify-content: space-between; text-align: right; font-size: 11px; color: #6b7490; min-width: 36px; }
+.ov-axis span { line-height: 12px; }
+.ov-main { flex: 1; min-width: 0; }
+.ov-plot { position: relative; height: 190px; }
+.ov-line { position: absolute; left: 0; right: 0; height: 1px; background: #e8ebf4; }
+.ov-cols { position: absolute; inset: 0; display: grid; }
+.ov-col { height: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 6px; }
+.ov-bar { width: 34%; max-width: 38px; min-height: 2px; border-radius: 8px 8px 0 0; transition: height 0.3s; }
+.ov-bar.in { background: #12a566; }
+.ov-bar.out { background: #e5384f; }
+.ov-labels { display: grid; margin-top: 8px; text-align: center; font-size: 12px; font-weight: bold; color: #6b7490; }
+.chart-legend.center { justify-content: center; margin: 16px 0 0; }
+
+.big-pct { margin: 0 0 10px; font-size: 28px; font-weight: bold; }
+.dash-side .limit-bar { margin-bottom: 10px; }
+
+.recent { list-style: none; margin: 0; padding: 0; }
+.recent .item { border-bottom: 1px solid #e8ebf4; border-radius: 0; padding: 12px 0; }
+.recent .item:last-child { border-bottom: none; }
+.recent .item:hover { background: transparent; }

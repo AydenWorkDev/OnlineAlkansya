@@ -361,6 +361,9 @@ function render() {
   showLimit();
   showBars();
   showList();
+  showOverview();
+  showProgress();
+  showRecent();
 }
 
 function showSummary() {
@@ -587,6 +590,7 @@ function saveLimits(event) {
   currentUser.maxEntry = max;
   saveUsers();
   showLimit();
+  fillSettingsDetails();
   setMsg("limitMsg", "Limit saved.", true);
 }
 
@@ -779,6 +783,385 @@ function showGoals() {
   }
 }
 
+// ---------- dashboard: monthly overview chart ----------
+// a round top value for the chart (divides nicely into 4 steps)
+function niceMax(value) {
+  if (value <= 0) return 1000;
+  var magnitude = Math.pow(10, Math.floor(Math.log(value) / Math.LN10));
+  var steps = [1, 2, 4, 5, 8, 10];
+  for (var i = 0; i < steps.length; i++) {
+    if (steps[i] * magnitude >= value) return steps[i] * magnitude;
+  }
+  return 10 * magnitude;
+}
+
+function axisLabel(n) {
+  if (n === 0) return "₱0";
+  return "₱" + (n >= 1000 ? (Math.round(n / 100) / 10) + "K" : Math.round(n));
+}
+
+function showOverview() {
+  var now = new Date();
+  var daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  var weeks = Math.ceil(daysInMonth / 7);
+  var inc = [];
+  var exp = [];
+  for (var w = 0; w < weeks; w++) {
+    inc.push(0);
+    exp.push(0);
+  }
+
+  // add up this month's transactions, week 1 = days 1-7, week 2 = days 8-14 ...
+  var maxValue = 0;
+  for (var i = 0; i < transactions.length; i++) {
+    var t = transactions[i];
+    var date = txDate(t);
+    if (date.getFullYear() !== now.getFullYear() || date.getMonth() !== now.getMonth()) continue;
+    var week = Math.floor((date.getDate() - 1) / 7);
+    if (t.type === "income") inc[week] += t.amount;
+    else exp[week] += t.amount;
+  }
+  for (var k = 0; k < weeks; k++) {
+    maxValue = Math.max(maxValue, inc[k], exp[k]);
+  }
+  var top = niceMax(maxValue);
+
+  $("ovMonth").textContent = now.toLocaleDateString("en-US", { month: "long" });
+
+  // left side numbers
+  var axis = $("ovAxis");
+  axis.innerHTML = "";
+  for (var a = 4; a >= 0; a--) {
+    axis.appendChild(makeEl("span", "", axisLabel(top * a / 4)));
+  }
+
+  // lines and bars
+  var plot = $("ovPlot");
+  plot.innerHTML = "";
+  for (var g = 0; g <= 4; g++) {
+    var line = makeEl("div", "ov-line");
+    line.style.bottom = (g * 25) + "%";
+    plot.appendChild(line);
+  }
+  var cols = makeEl("div", "ov-cols");
+  cols.style.gridTemplateColumns = "repeat(" + weeks + ", 1fr)";
+  var labels = $("ovLabels");
+  labels.innerHTML = "";
+  labels.style.gridTemplateColumns = "repeat(" + weeks + ", 1fr)";
+
+  for (var c = 0; c < weeks; c++) {
+    var col = makeEl("div", "ov-col");
+    var barIn = makeEl("div", "ov-bar in");
+    barIn.style.height = (inc[c] / top * 100) + "%";
+    barIn.title = "Income: " + formatMoney(inc[c]);
+    var barOut = makeEl("div", "ov-bar out");
+    barOut.style.height = (exp[c] / top * 100) + "%";
+    barOut.title = "Expenses: " + formatMoney(exp[c]);
+    col.appendChild(barIn);
+    col.appendChild(barOut);
+    cols.appendChild(col);
+    labels.appendChild(makeEl("span", "", "Week " + (c + 1)));
+  }
+  plot.appendChild(cols);
+}
+
+// ---------- dashboard: budget progress and savings goal ----------
+function showProgress() {
+  // weekly budget
+  var budget = currentUser.weeklyBudget || 0;
+  var spent = spentThisWeek();
+  if (budget <= 0) {
+    $("bpPercent").textContent = "—";
+    $("bpFill").style.width = "0%";
+    $("bpFill").className = "limit-fill";
+    $("bpNote").textContent = "Set a weekly budget below to track your progress.";
+  } else {
+    var percent = Math.round(spent / budget * 100);
+    $("bpPercent").textContent = percent + "%";
+    $("bpFill").style.width = Math.min(percent, 100) + "%";
+    $("bpFill").className = (percent >= 100) ? "limit-fill full" : (percent >= 80) ? "limit-fill warn" : "limit-fill";
+    $("bpNote").textContent = formatMoney(spent) + " of " + formatMoney(budget) + " this week";
+  }
+
+  // all savings goals together
+  var saved = 0;
+  var target = 0;
+  for (var i = 0; i < goals.length; i++) {
+    saved += goals[i].saved;
+    target += goals[i].target;
+  }
+  if (target <= 0) {
+    $("sgPercent").textContent = "—";
+    $("sgFill").style.width = "0%";
+    $("sgFill").className = "limit-fill";
+    $("sgNote").textContent = "No savings goal yet. Add one in Savings Goals.";
+  } else {
+    var goalPercent = Math.min(100, Math.round(saved / target * 100));
+    $("sgPercent").textContent = goalPercent + "%";
+    $("sgFill").style.width = goalPercent + "%";
+    $("sgFill").className = (goalPercent >= 100) ? "limit-fill done" : "limit-fill";
+    $("sgNote").textContent = formatMoney(saved) + " of " + formatMoney(target);
+  }
+}
+
+// ---------- dashboard: last 5 transactions ----------
+function showRecent() {
+  var list = $("recentList");
+  list.innerHTML = "";
+
+  for (var i = 0; i < transactions.length && i < 5; i++) {
+    var t = transactions[i];
+    var isIncome = (t.type === "income");
+    var cls = isIncome ? "in" : "out";
+
+    var li = makeEl("li", "item");
+    li.appendChild(makeEl("div", "arrow " + cls, isIncome ? "↑" : "↓"));
+
+    var info = makeEl("div", "info");
+    info.appendChild(makeEl("b", "", t.description));
+    info.appendChild(makeEl("small", "", (t.category || "Other") + " • " + t.date));
+    li.appendChild(info);
+
+    li.appendChild(makeEl("div", "amount " + cls, (isIncome ? "+ " : "- ") + formatMoney(t.amount)));
+    list.appendChild(li);
+  }
+
+  if (transactions.length === 0) {
+    list.appendChild(makeEl("li", "empty", "No transactions yet. Add your first income below."));
+  }
+}
+
+// ---------- budgets page (monthly limit for each expense category) ----------
+// how much was spent in one category this month
+function monthSpend(cat) {
+  var now = new Date();
+  var total = 0;
+  for (var i = 0; i < transactions.length; i++) {
+    var t = transactions[i];
+    if (t.type !== "expense" || (t.category || "Other") !== cat) continue;
+    var date = txDate(t);
+    if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) {
+      total += t.amount;
+    }
+  }
+  return total;
+}
+
+function showBudgets() {
+  var budgets = currentUser.catBudgets || {};
+  var list = $("budList");
+  list.innerHTML = "";
+  $("budMsg").textContent = "";
+  var totalBudget = 0;
+  var totalSpent = 0;
+
+  for (var i = 0; i < categories.expense.length; i++) {
+    var cat = categories.expense[i];
+    var limit = budgets[cat] || 0;
+    var spent = monthSpend(cat);
+    if (limit > 0) {
+      totalBudget += limit;
+      totalSpent += spent;
+    }
+
+    var row = makeEl("div", "bud-row");
+
+    var top = makeEl("div", "bud-top");
+    top.appendChild(makeEl("b", "", cat));
+    var status = (limit > 0) ? formatMoney(spent) + " of " + formatMoney(limit) : formatMoney(spent) + " spent • no budget";
+    top.appendChild(makeEl("span", "note", status));
+    row.appendChild(top);
+
+    var percent = (limit > 0) ? Math.round(spent / limit * 100) : 0;
+    var bar = makeEl("div", "limit-bar");
+    var fill = makeEl("div", "limit-fill");
+    if (percent >= 100) fill.className = "limit-fill full";
+    else if (percent >= 80) fill.className = "limit-fill warn";
+    fill.style.width = Math.min(percent, 100) + "%";
+    bar.appendChild(fill);
+    row.appendChild(bar);
+
+    var input = makeEl("input", "bud-input");
+    input.type = "number";
+    input.min = "0";
+    input.step = "1";
+    input.placeholder = "Monthly budget for " + cat + " (₱)";
+    input.value = (limit > 0) ? limit : "";
+    input.setAttribute("data-cat", cat);
+    row.appendChild(input);
+
+    list.appendChild(row);
+  }
+
+  $("budTotal").textContent = formatMoney(totalBudget);
+  $("budSpent").textContent = formatMoney(totalSpent);
+  var left = totalBudget - totalSpent;
+  $("budLeft").textContent = (left < 0 ? "-" : "") + formatMoney(Math.abs(left));
+}
+
+function saveCategoryBudgets() {
+  var inputs = document.querySelectorAll(".bud-input");
+  var budgets = {};
+
+  for (var i = 0; i < inputs.length; i++) {
+    var value = Number(inputs[i].value || 0);
+    if (value < 0 || value > 100000000) {
+      setMsg("budMsg", "Each budget must be between ₱0 and ₱100,000,000.");
+      return;
+    }
+    if (value > 0) {
+      budgets[inputs[i].getAttribute("data-cat")] = value;
+    }
+  }
+
+  currentUser.catBudgets = budgets;
+  saveUsers();
+  showBudgets();
+  setMsg("budMsg", "Budgets saved.", true);
+}
+
+// ---------- categories page ----------
+var categoryPalette = ["#f59e0b", "#0ea5e9", "#8b5cf6", "#ec4899", "#12a566", "#5b5bf0", "#e5384f", "#94a3b8"];
+
+function showCategories() {
+  fillCategoryList("expense", "catExpense");
+  fillCategoryList("income", "catIncome");
+}
+
+function fillCategoryList(kind, boxId) {
+  var box = $(boxId);
+  box.innerHTML = "";
+
+  var names = categories[kind].slice();
+  var totals = {};
+  var counts = {};
+  var sum = 0;
+
+  for (var i = 0; i < transactions.length; i++) {
+    var t = transactions[i];
+    if (t.type !== kind) continue;
+    var cat = t.category || "Other";
+    if (names.indexOf(cat) === -1) names.push(cat);   // old or goal categories like "Shopping"
+    totals[cat] = (totals[cat] || 0) + t.amount;
+    counts[cat] = (counts[cat] || 0) + 1;
+    sum += t.amount;
+  }
+
+  for (var k = 0; k < names.length; k++) {
+    var name = names[k];
+    var amount = totals[name] || 0;
+    var count = counts[name] || 0;
+    var percent = (sum > 0) ? amount / sum * 100 : 0;
+    var color = (kind === "income") ? "#12a566" : (categoryColors[name] || categoryPalette[k % categoryPalette.length]);
+
+    var row = makeEl("div", "bar-row");
+    var top = makeEl("div", "top");
+    var left = makeEl("span", "");
+    var dot = makeEl("i", "dot");
+    dot.style.background = color;
+    left.appendChild(dot);
+    left.appendChild(document.createTextNode(name));
+    top.appendChild(left);
+    top.appendChild(makeEl("span", "", formatMoney(amount)));
+
+    var bg = makeEl("div", "bar-bg");
+    var fill = makeEl("div", "bar-fill");
+    fill.style.width = percent + "%";
+    fill.style.background = color;
+    bg.appendChild(fill);
+
+    row.appendChild(top);
+    row.appendChild(bg);
+    row.appendChild(makeEl("small", "note", count + (count === 1 ? " transaction" : " transactions") + " • " + Math.round(percent) + "%"));
+    box.appendChild(row);
+  }
+}
+
+// ---------- reports and analytics page ----------
+function showReports() {
+  var now = new Date();
+  var income = 0;
+  var expense = 0;
+  var count = 0;
+  var biggest = null;
+  var catTotals = {};
+
+  for (var i = 0; i < transactions.length; i++) {
+    var t = transactions[i];
+    var date = txDate(t);
+    if (date.getFullYear() !== now.getFullYear() || date.getMonth() !== now.getMonth()) continue;
+    count++;
+    if (t.type === "income") {
+      income += t.amount;
+    } else {
+      expense += t.amount;
+      var cat = t.category || "Other";
+      catTotals[cat] = (catTotals[cat] || 0) + t.amount;
+      if (biggest === null || t.amount > biggest.amount) biggest = t;
+    }
+  }
+
+  var net = income - expense;
+  $("repIncome").textContent = formatMoney(income);
+  $("repExpense").textContent = formatMoney(expense);
+  $("repNet").textContent = (net < 0 ? "-" : "") + formatMoney(Math.abs(net));
+  $("repRate").textContent = (income > 0) ? Math.round(net / income * 100) + "%" : "—";
+
+  $("repCount").textContent = count;
+  $("repAvgDay").textContent = formatMoney(expense / now.getDate());
+  $("repBiggest").textContent = biggest ? biggest.description + " (" + formatMoney(biggest.amount) + ")" : "None yet";
+
+  var topName = "None yet";
+  var topAmount = 0;
+  for (var name in catTotals) {
+    if (catTotals[name] > topAmount) {
+      topAmount = catTotals[name];
+      topName = name + " (" + formatMoney(catTotals[name]) + ")";
+    }
+  }
+  $("repTopCat").textContent = topName;
+
+  // chart: income and expenses for the last 6 months
+  var months = [];
+  var maxValue = 0;
+  for (var m = 5; m >= 0; m--) {
+    var first = new Date(now.getFullYear(), now.getMonth() - m, 1);
+    var inc = 0;
+    var exp = 0;
+    for (var j = 0; j < transactions.length; j++) {
+      var tx = transactions[j];
+      var d = txDate(tx);
+      if (d.getFullYear() === first.getFullYear() && d.getMonth() === first.getMonth()) {
+        if (tx.type === "income") inc += tx.amount;
+        else exp += tx.amount;
+      }
+    }
+    months.push({ label: first.toLocaleDateString("en-US", { month: "short" }), inc: inc, exp: exp });
+    maxValue = Math.max(maxValue, inc, exp);
+  }
+
+  var chart = $("repChart");
+  chart.innerHTML = "";
+  for (var c = 0; c < months.length; c++) {
+    var col = makeEl("div", "chart-col");
+    var bars = makeEl("div", "chart-bars");
+
+    var barIn = makeEl("div", "chart-bar in");
+    barIn.style.height = (maxValue > 0 ? months[c].inc / maxValue * 100 : 0) + "%";
+    barIn.title = "Income: " + formatMoney(months[c].inc);
+
+    var barOut = makeEl("div", "chart-bar out");
+    barOut.style.height = (maxValue > 0 ? months[c].exp / maxValue * 100 : 0) + "%";
+    barOut.title = "Expenses: " + formatMoney(months[c].exp);
+
+    bars.appendChild(barIn);
+    bars.appendChild(barOut);
+    col.appendChild(bars);
+    col.appendChild(makeEl("small", "", months[c].label));
+    chart.appendChild(col);
+  }
+}
+
 // ---------- allowance tracker ----------
 function showAllowance() {
   var total = 0;
@@ -887,6 +1270,7 @@ function saveWeekly(event) {
   currentUser.weeklyBudget = budget;
   saveUsers();
   showWeekly();
+  showProgress();
   if (budget > 0) {
     setMsg("weekMsg", "Weekly budget saved.", true);
   } else {
@@ -912,7 +1296,7 @@ function closeMenu() {
 // ---------- pages: dashboard, transactions, goals, profile, settings ----------
 function showPage(page) {
   closeMenu();   // close the menu on phones after choosing a page
-  var pages = ["Dashboard", "History", "Goals", "Profile", "Settings"];
+  var pages = ["Dashboard", "History", "Budgets", "Goals", "Categories", "Reports", "Profile", "Settings", "Help"];
   for (var i = 0; i < pages.length; i++) {
     var isThis = (pages[i].toLowerCase() === page);
     $("page" + pages[i]).classList.toggle("hidden", !isThis);
@@ -922,6 +1306,15 @@ function showPage(page) {
   if (page === "history") {
     showList();
   }
+  if (page === "budgets") {
+    showBudgets();
+  }
+  if (page === "categories") {
+    showCategories();
+  }
+  if (page === "reports") {
+    showReports();
+  }
   if (page === "goals") {
     showGoals();
   }
@@ -929,6 +1322,7 @@ function showPage(page) {
     fillProfile();
   }
   if (page === "settings") {
+    fillSettingsDetails();
     $("setName").value = currentUser.name;
     $("setMax").value = getMaxEntry();
     $("limitMsg").textContent = "";
@@ -968,6 +1362,21 @@ function fillProfile() {
 }
 
 // ---------- settings ----------
+// fill the "User details" box at the top of Settings
+function fillSettingsDetails() {
+  var weekly = currentUser.weeklyBudget || 0;
+  $("setAvatar").textContent = currentUser.name.charAt(0).toUpperCase();
+  $("setDetName").textContent = currentUser.name;
+  $("setDetEmail").textContent = currentUser.email;
+  $("setDetName2").textContent = currentUser.name;
+  $("setDetEmail2").textContent = currentUser.email;
+  $("setDetSince").textContent = currentUser.joined || "Not available";
+  $("setDetTx").textContent = transactions.length;
+  $("setDetGoals").textContent = goals.length;
+  $("setDetWeekly").textContent = weekly > 0 ? formatMoney(weekly) : "Not set";
+  $("setDetMax").textContent = formatMoney(getMaxEntry());
+}
+
 function saveName(event) {
   event.preventDefault();
   var name = $("setName").value.trim();
@@ -980,6 +1389,7 @@ function saveName(event) {
   $("userName").textContent = name;
   $("sideAvatar").textContent = name.charAt(0).toUpperCase();
   $("greeting").textContent = $("greeting").textContent.split(",")[0] + ", " + name.split(" ")[0];
+  fillSettingsDetails();
   setMsg("nameMsg", "Name updated.", true);
 }
 

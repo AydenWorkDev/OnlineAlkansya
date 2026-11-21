@@ -230,17 +230,35 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           Transactions
         </button>
+        <button type="button" id="navBudgets" class="nav" onclick="showPage('budgets')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1"/></svg>
+          Budgets
+        </button>
         <button type="button" id="navGoals" class="nav" onclick="showPage('goals')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5"/></svg>
-          Goals
+          Savings Goals
         </button>
+        <button type="button" id="navCategories" class="nav" onclick="showPage('categories')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9v9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>
+          Categories
+        </button>
+        <button type="button" id="navReports" class="nav" onclick="showPage('reports')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M11 20V5M17 20v-9"/></svg>
+          Reports &amp; Analytics
+        </button>
+
+        <p class="menu-label account-label">Account</p>
         <button type="button" id="navProfile" class="nav" onclick="showPage('profile')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
-          Profile
+          My Profile
         </button>
         <button type="button" id="navSettings" class="nav" onclick="showPage('settings')">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
           Settings
+        </button>
+        <button type="button" id="navHelp" class="nav" onclick="showPage('help')">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01"/></svg>
+          Help &amp; Support
         </button>
       </nav>
 
@@ -251,6 +269,9 @@
             <small>Signed in as</small>
             <span id="userName"></span>
           </div>
+          <button type="button" class="logout-icon" onclick="logout()" title="Log out" aria-label="Log out">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
         </div>
         <div class="notice">
           <div class="notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
@@ -286,6 +307,53 @@
           <div><p>Saved for goals</p><h2 id="saved">₱0</h2></div>
         </div>
       </div>
+
+      <!-- monthly overview chart + progress cards -->
+      <div class="dash-top">
+        <section class="box overview">
+          <div class="ov-head">
+            <div>
+              <h3>Monthly Financial Overview</h3>
+              <p class="note">Income vs Expenses, week by week</p>
+            </div>
+            <span class="month-badge" id="ovMonth"></span>
+          </div>
+          <div class="ov-body">
+            <div class="ov-axis" id="ovAxis"></div>
+            <div class="ov-main">
+              <div class="ov-plot" id="ovPlot"></div>
+              <div class="ov-labels" id="ovLabels"></div>
+            </div>
+          </div>
+          <div class="chart-legend center">
+            <span><i class="dot" style="background:#12a566"></i>Income</span>
+            <span><i class="dot" style="background:#e5384f"></i>Expenses</span>
+          </div>
+        </section>
+
+        <div class="dash-side">
+          <section class="box">
+            <h3>Budget Progress</h3>
+            <p class="big-pct" id="bpPercent">—</p>
+            <div class="limit-bar"><div class="limit-fill" id="bpFill"></div></div>
+            <p class="note" id="bpNote"></p>
+          </section>
+          <section class="box">
+            <h3>Savings Goal</h3>
+            <p class="big-pct" id="sgPercent">—</p>
+            <div class="limit-bar"><div class="limit-fill" id="sgFill"></div></div>
+            <p class="note" id="sgNote"></p>
+          </section>
+        </div>
+      </div>
+
+      <section class="box">
+        <div class="limit-top">
+          <h3>Recent Transactions</h3>
+          <button type="button" class="link" onclick="showPage('history')">View all</button>
+        </div>
+        <ul class="recent" id="recentList"></ul>
+      </section>
 
       <!-- spending limit (depends on the user's own money) -->
       <section class="box limit-box">
@@ -366,9 +434,27 @@
           <input type="text" id="search" placeholder="Search..." oninput="render()">
           <button type="button" id="fAll" class="chip active" onclick="setFilter('all')">All</button>
           <button type="button" id="fIncome" class="chip" onclick="setFilter('income')">Income</button>
-          <button type="button" id="fExpense" class="chip" onclick="setFilter('expenses')">Expenses</button>
+          <button type="button" id="fExpense" class="chip" onclick="setFilter('expense')">Expenses</button>
         </div>
         <ul id="list"></ul>
+      </section>
+    </main>
+
+    <!-- ===== BUDGETS PAGE ===== -->
+    <main id="pageBudgets" class="hidden">
+      <div class="page-head"><h1>Budgets</h1><p>Set a monthly limit for each expense category and see how much is left. Amounts are for tracking only.</p></div>
+
+      <div class="tiles tiles3">
+        <div class="tile"><small>Total budgeted</small><b id="budTotal"></b></div>
+        <div class="tile out"><small>Spent this month</small><b id="budSpent"></b></div>
+        <div class="tile bal"><small>Left to spend</small><b id="budLeft"></b></div>
+      </div>
+
+      <section class="box">
+        <h3>Monthly budget by category</h3>
+        <div id="budList"></div>
+        <p class="message" id="budMsg"></p>
+        <button type="button" onclick="saveCategoryBudgets()">Save budgets</button>
       </section>
     </main>
 
@@ -387,6 +473,46 @@
       </section>
 
       <div id="goalList"></div>
+    </main>
+
+    <!-- ===== CATEGORIES PAGE ===== -->
+    <main id="pageCategories" class="hidden">
+      <div class="page-head"><h1>Categories</h1><p>See how your expenses and income are grouped.</p></div>
+      <div class="columns">
+        <section class="box"><h3>Expense categories</h3><div id="catExpense"></div></section>
+        <section class="box"><h3>Income categories</h3><div id="catIncome"></div></section>
+      </div>
+    </main>
+
+    <!-- ===== REPORTS & ANALYTICS PAGE ===== -->
+    <main id="pageReports" class="hidden">
+      <div class="page-head"><h1>Reports &amp; Analytics</h1><p>A summary of this month and the last 6 months.</p></div>
+
+      <div class="tiles">
+        <div class="tile in"><small>Income this month</small><b id="repIncome"></b></div>
+        <div class="tile out"><small>Expenses this month</small><b id="repExpense"></b></div>
+        <div class="tile bal"><small>Net this month</small><b id="repNet"></b></div>
+        <div class="tile"><small>Savings rate</small><b id="repRate"></b></div>
+      </div>
+
+      <div class="columns">
+        <section class="box">
+          <h3>Last 6 months</h3>
+          <div class="chart-legend">
+            <span><i class="dot" style="background:#12a566"></i>Income</span>
+            <span><i class="dot" style="background:#e5384f"></i>Expenses</span>
+          </div>
+          <div class="chart" id="repChart"></div>
+        </section>
+
+        <section class="box">
+          <h3>This month at a glance</h3>
+          <div class="detail"><span>Transactions</span><b id="repCount"></b></div>
+          <div class="detail"><span>Average spending per day</span><b id="repAvgDay"></b></div>
+          <div class="detail"><span>Top spending category</span><b id="repTopCat"></b></div>
+          <div class="detail"><span>Biggest expense</span><b id="repBiggest"></b></div>
+        </section>
+      </div>
     </main>
 
     <!-- ===== PROFILE PAGE ===== -->
@@ -422,6 +548,27 @@
     <!-- ===== SETTINGS PAGE ===== -->
     <main id="pageSettings" class="hidden">
       <div class="page-head"><h1>Settings</h1><p>Manage your account</p></div>
+
+      <section class="box user-box">
+        <div class="set-head">
+          <div class="set-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c0-1.7 1.3-3 3-3s3 1.3 3 3M14 10h4M14 14h4"/></svg></div>
+          <div><h3>User details</h3><p class="note">The account that is using this app.</p></div>
+        </div>
+        <div class="user-card">
+          <div class="big-avatar" id="setAvatar"></div>
+          <div class="user-card-info">
+            <h2 id="setDetName"></h2>
+            <p id="setDetEmail"></p>
+          </div>
+        </div>
+        <div class="detail"><span>Full name</span><b id="setDetName2"></b></div>
+        <div class="detail"><span>Email</span><b id="setDetEmail2"></b></div>
+        <div class="detail"><span>Member since</span><b id="setDetSince"></b></div>
+        <div class="detail"><span>Transactions recorded</span><b id="setDetTx"></b></div>
+        <div class="detail"><span>Savings goals</span><b id="setDetGoals"></b></div>
+        <div class="detail"><span>Weekly budget</span><b id="setDetWeekly"></b></div>
+        <div class="detail"><span>Max amount per entry</span><b id="setDetMax"></b></div>
+      </section>
 
       <section class="box">
         <div class="set-head">
@@ -492,6 +639,42 @@
           <p class="message" id="dangerMsg"></p>
         </div>
       </section>
+    </main>
+
+    <!-- ===== HELP & SUPPORT PAGE ===== -->
+    <main id="pageHelp" class="hidden">
+      <div class="page-head"><h1>Help &amp; Support</h1><p>Quick answers about using Online Alkansya</p></div>
+
+      <div class="columns">
+        <section class="box faq">
+          <h3>Frequently asked questions</h3>
+          <details><summary>How do I add my allowance?</summary><p>Go to the Dashboard, choose Income, type a description and the amount, pick Allowance as the category, then press Add income.</p></details>
+          <details><summary>Why can’t I add an expense?</summary><p>You can only spend the money you have in the tracker. Add income first. Money you put into savings goals is not available to spend.</p></details>
+          <details><summary>How do budgets work?</summary><p>Open Budgets to set a monthly limit for each expense category. The weekly budget is on the Dashboard.</p></details>
+          <details><summary>How do I buy something from a savings goal?</summary><p>Open Savings Goals and add savings until you reach the price. Then press Mark as bought. The saved money is recorded as an expense.</p></details>
+          <details><summary>Where is my data saved?</summary><p>Only in this browser on this device. If you clear your browser data or use another device, your records won’t be there.</p></details>
+          <details><summary>I forgot my password.</summary><p>On the Log in page, press Forgot password? Then enter your email and the full name on the account.</p></details>
+        </section>
+
+        <div>
+          <section class="box">
+            <div class="set-head">
+              <div class="set-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+              <div><h3>For tracking purposes only</h3><p class="note">No real money is stored, sent or managed.</p></div>
+            </div>
+            <p class="note">Every amount is typed in by you. Online Alkansya is a budgeting and tracking tool, not a bank or payment system.</p>
+          </section>
+
+          <section class="box">
+            <h3>Quick links</h3>
+            <div class="stack">
+              <button type="button" class="secondary" onclick="showPage('dashboard')">Go to Dashboard</button>
+              <button type="button" class="secondary" onclick="showPage('history')">View transactions</button>
+              <button type="button" class="secondary" onclick="showPage('settings')">Open Settings</button>
+            </div>
+          </section>
+        </div>
+      </div>
     </main>
     </div>
   </div>
