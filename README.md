@@ -19,6 +19,7 @@
   - **Income**
   - **Expenses**
   - **Saved for goals**
+  - **Weekly Budget**
 - **Spending limit** bar: you can only spend the money you have in your tracker, so add income first
 
 ### ➕ Transactions
