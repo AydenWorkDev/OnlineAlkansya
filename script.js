@@ -10,6 +10,7 @@ var transactions = [];     // transactions of the logged in user
 var goals = [];            // things the user wants to buy (savings goals)
 var mode = "login";        // "login" or "signup"
 var type = "income";       // selected type in the add form
+var editingId = null;      // id of the transaction being edited (null = adding)
 var filter = "all";        // all, income or expense
 var resetStep = 1;         // step of the forgot password form
 
@@ -264,7 +265,7 @@ function startApp(user) {
   setType("income");
   $("weekInput").value = currentUser.weeklyBudget || "";
   setRange("all");
-  showPage("dashboard");
+  showPage((currentUser.prefs && currentUser.prefs.startPage) || "dashboard");
   render();
 }
 
@@ -282,13 +283,13 @@ function setType(newType) {
   type = newType;
   $("btnIncome").className = (type === "income") ? "on-income" : "";
   $("btnExpense").className = (type === "expense") ? "on-expense" : "";
-  $("addBtn").textContent = "Add " + type;
+  $("addBtn").textContent = (editingId !== null) ? "Save changes" : "Add " + type;
 
   // fill the category list for this type
   $("category").innerHTML = "";
-  for (var i = 0; i < categories[type].length; i++) {
+  for (var i = 0; i < getCategories(type).length; i++) {
     var option = document.createElement("option");
-    option.textContent = categories[type][i];
+    option.textContent = getCategories(type)[i];
     $("category").appendChild(option);
   }
 }
@@ -305,6 +306,28 @@ function addTransaction(event) {
   if (amount > maxEntry) {
     setMsg("txMsg", "The most you can enter in one entry is " + formatMoney(maxEntry) + ". You can change this in Settings.");
     return;
+  }
+
+  // editing an old transaction: check the new balance, then save the changes
+  if (editingId !== null) {
+    var old = findTransaction(editingId);
+    if (old !== null) {
+      var without = getTotals().available - (old.type === "income" ? old.amount : -old.amount);
+      var after = without + (type === "income" ? amount : -amount);
+      if (after < 0) {
+        setMsg("txMsg", "Not enough money. This change would make your available balance negative.");
+        return;
+      }
+      old.description = description;
+      old.amount = amount;
+      old.type = type;
+      old.category = $("category").value;
+      saveTransactions();
+      cancelEdit();
+      render();
+      setMsg("txMsg", "Transaction updated.", true);
+      return;
+    }
   }
 
   // limit 2: you can't spend more money than you have in the tracker
@@ -333,7 +356,68 @@ function addTransaction(event) {
   render();
 }
 
+function findTransaction(id) {
+  for (var i = 0; i < transactions.length; i++) {
+    if (transactions[i].id === id) {
+      return transactions[i];
+    }
+  }
+  return null;
+}
+
+// load a transaction into the form so it can be changed
+function startEdit(id) {
+  var t = findTransaction(id);
+  if (t === null) return;
+  editingId = id;
+  showPage("history");
+  setType(t.type);
+
+  var cat = t.category || "Other";
+  var found = false;
+  var options = $("category").options;
+  for (var i = 0; i < options.length; i++) {
+    if (options[i].textContent === cat) found = true;
+  }
+  if (!found) {                      // old or removed category: keep it so nothing is lost
+    var option = document.createElement("option");
+    option.textContent = cat;
+    $("category").appendChild(option);
+  }
+  $("category").value = cat;
+  $("desc").value = t.description;
+  $("amount").value = t.amount;
+  $("txTitle").textContent = "Edit transaction";
+  $("cancelEdit").classList.remove("hidden");
+  $("txMsg").textContent = "";
+  $("txForm").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function cancelEdit() {
+  editingId = null;
+  $("txForm").reset();
+  $("txMsg").textContent = "";
+  $("txTitle").textContent = "Add a transaction";
+  $("cancelEdit").classList.add("hidden");
+  setType(type);
+}
+
+// quick action buttons on the dashboard
+function quickAdd(kind) {
+  if (editingId !== null) cancelEdit();
+  showPage("history");
+  setType(kind);
+  $("desc").focus();
+}
+
+function makeEditHandler(id) {
+  return function () {
+    startEdit(id);
+  };
+}
+
 function deleteTransaction(id) {
+  if (editingId === id) cancelEdit();
   var kept = [];
   for (var i = 0; i < transactions.length; i++) {
     if (transactions[i].id !== id) {
@@ -500,6 +584,12 @@ function showList() {
 
     li.appendChild(makeEl("div", "amount " + cls, (isIncome ? "+ " : "- ") + formatMoney(t.amount)));
 
+    var edit = makeEl("button", "edit", "✎");
+    edit.type = "button";
+    edit.title = "Edit";
+    edit.onclick = makeEditHandler(t.id);
+    li.appendChild(edit);
+
     var del = makeEl("button", "delete", "×");
     del.type = "button";
     del.title = "Delete";
@@ -661,6 +751,11 @@ function addSavings(id, input, msgBox) {
   }
 
   goal.saved = Math.round((goal.saved + amount) * 100) / 100;
+  if (!goal.contributions) goal.contributions = [];
+  goal.contributions.unshift({
+    amount: amount,
+    date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  });
   saveGoals();
   render();
   showGoals();
@@ -747,6 +842,17 @@ function showGoals() {
     var info = formatMoney(goal.saved) + " saved (" + percent + "%) • ";
     info += reached ? "Goal reached!" : formatMoney(goal.target - goal.saved) + " to go";
     card.appendChild(makeEl("p", "note goal-info", info));
+
+    // the savings you put in (newest first)
+    var contribs = goal.contributions || [];
+    if (contribs.length > 0) {
+      card.appendChild(makeEl("p", "contrib-title", "Contributions (" + contribs.length + ")"));
+      var contribList = makeEl("ul", "contrib-list");
+      for (var q = 0; q < contribs.length && q < 5; q++) {
+        contribList.appendChild(makeEl("li", "", contribs[q].date + " • + " + formatMoney(contribs[q].amount)));
+      }
+      card.appendChild(contribList);
+    }
 
     var msgBox = makeEl("p", "message");
 
@@ -909,7 +1015,7 @@ function showRecent() {
   var list = $("recentList");
   list.innerHTML = "";
 
-  for (var i = 0; i < transactions.length && i < 5; i++) {
+  for (var i = 0; i < transactions.length && i < getRecentCount(); i++) {
     var t = transactions[i];
     var isIncome = (t.type === "income");
     var cls = isIncome ? "in" : "out";
@@ -955,8 +1061,8 @@ function showBudgets() {
   var totalBudget = 0;
   var totalSpent = 0;
 
-  for (var i = 0; i < categories.expense.length; i++) {
-    var cat = categories.expense[i];
+  for (var i = 0; i < getCategories("expense").length; i++) {
+    var cat = getCategories("expense")[i];
     var limit = budgets[cat] || 0;
     var spent = monthSpend(cat);
     if (limit > 0) {
@@ -1023,7 +1129,71 @@ function saveCategoryBudgets() {
 // ---------- categories page ----------
 var categoryPalette = ["#f59e0b", "#0ea5e9", "#8b5cf6", "#ec4899", "#12a566", "#5b5bf0", "#e5384f", "#94a3b8"];
 
+// default categories + the ones the user added
+function getCategories(kind) {
+  var custom = [];
+  if (currentUser && currentUser.customCategories && currentUser.customCategories[kind]) {
+    custom = currentUser.customCategories[kind];
+  }
+  return categories[kind].concat(custom);
+}
+
+function isCustomCategory(kind, name) {
+  if (!currentUser || !currentUser.customCategories || !currentUser.customCategories[kind]) return false;
+  return currentUser.customCategories[kind].indexOf(name) !== -1;
+}
+
+function addCategory(event) {
+  event.preventDefault();
+  var kind = $("catKind").value;
+  var name = $("catName").value.trim();
+
+  if (name === "") {
+    setMsg("catMsg", "Please enter a category name.");
+    return;
+  }
+  var existing = getCategories(kind);
+  for (var i = 0; i < existing.length; i++) {
+    if (existing[i].toLowerCase() === name.toLowerCase()) {
+      setMsg("catMsg", "That category already exists.");
+      return;
+    }
+  }
+  if (!currentUser.customCategories) currentUser.customCategories = { income: [], expense: [] };
+  if (!currentUser.customCategories[kind]) currentUser.customCategories[kind] = [];
+  if (currentUser.customCategories[kind].length >= 20) {
+    setMsg("catMsg", "You can add up to 20 custom categories for each type.");
+    return;
+  }
+
+  currentUser.customCategories[kind].push(name);
+  saveUsers();
+  $("catName").value = "";
+  if (editingId === null) setType(type);   // refresh the category list in the add form
+  showCategories();
+  setMsg("catMsg", "Category added.", true);
+}
+
+function removeCategory(kind, name) {
+  if (!confirm("Remove the category " + name + "? Your old transactions keep this name.")) return;
+  var kept = [];
+  var list = currentUser.customCategories[kind];
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] !== name) kept.push(list[i]);
+  }
+  currentUser.customCategories[kind] = kept;
+  if (kind === "expense" && currentUser.catBudgets) delete currentUser.catBudgets[name];
+  saveUsers();
+  if (editingId === null) setType(type);
+  showCategories();
+}
+
+function makeRemoveCatHandler(kind, name) {
+  return function () { removeCategory(kind, name); };
+}
+
 function showCategories() {
+  $("catMsg").textContent = "";
   fillCategoryList("expense", "catExpense");
   fillCategoryList("income", "catIncome");
 }
@@ -1032,7 +1202,7 @@ function fillCategoryList(kind, boxId) {
   var box = $(boxId);
   box.innerHTML = "";
 
-  var names = categories[kind].slice();
+  var names = getCategories(kind);
   var totals = {};
   var counts = {};
   var sum = 0;
@@ -1061,8 +1231,17 @@ function fillCategoryList(kind, boxId) {
     dot.style.background = color;
     left.appendChild(dot);
     left.appendChild(document.createTextNode(name));
+    if (isCustomCategory(kind, name)) left.appendChild(makeEl("span", "cat custom-tag", "Custom"));
     top.appendChild(left);
-    top.appendChild(makeEl("span", "", formatMoney(amount)));
+    var right = makeEl("span", "cat-right", formatMoney(amount));
+    if (isCustomCategory(kind, name)) {
+      var rm = makeEl("button", "delete", "×");
+      rm.type = "button";
+      rm.title = "Remove category";
+      rm.onclick = makeRemoveCatHandler(kind, name);
+      right.appendChild(rm);
+    }
+    top.appendChild(right);
 
     var bg = makeEl("div", "bar-bg");
     var fill = makeEl("div", "bar-fill");
@@ -1078,8 +1257,23 @@ function fillCategoryList(kind, boxId) {
 }
 
 // ---------- reports and analytics page ----------
+var repOffset = 0;   // 0 = this month, -1 = last month, and so on
+
+function changeReportMonth(step) {
+  if (repOffset + step > 0) return;     // no future months
+  repOffset += step;
+  showReports();
+}
+
 function showReports() {
   var now = new Date();
+  var sel = new Date(now.getFullYear(), now.getMonth() + repOffset, 1);   // the month being shown
+  var daysInMonth = new Date(sel.getFullYear(), sel.getMonth() + 1, 0).getDate();
+  var days = (repOffset === 0) ? now.getDate() : daysInMonth;
+
+  $("repMonth").textContent = sel.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  $("repNext").disabled = (repOffset === 0);
+
   var income = 0;
   var expense = 0;
   var count = 0;
@@ -1089,7 +1283,7 @@ function showReports() {
   for (var i = 0; i < transactions.length; i++) {
     var t = transactions[i];
     var date = txDate(t);
-    if (date.getFullYear() !== now.getFullYear() || date.getMonth() !== now.getMonth()) continue;
+    if (date.getFullYear() !== sel.getFullYear() || date.getMonth() !== sel.getMonth()) continue;
     count++;
     if (t.type === "income") {
       income += t.amount;
@@ -1108,24 +1302,52 @@ function showReports() {
   $("repRate").textContent = (income > 0) ? Math.round(net / income * 100) + "%" : "—";
 
   $("repCount").textContent = count;
-  $("repAvgDay").textContent = formatMoney(expense / now.getDate());
+  $("repAvgDay").textContent = formatMoney(expense / days);
   $("repBiggest").textContent = biggest ? biggest.description + " (" + formatMoney(biggest.amount) + ")" : "None yet";
 
-  var topName = "None yet";
-  var topAmount = 0;
+  // spending breakdown by category (biggest first)
+  var list = [];
   for (var name in catTotals) {
-    if (catTotals[name] > topAmount) {
-      topAmount = catTotals[name];
-      topName = name + " (" + formatMoney(catTotals[name]) + ")";
-    }
+    list.push([name, catTotals[name]]);
   }
-  $("repTopCat").textContent = topName;
+  list.sort(function (x, y) { return y[1] - x[1]; });
+  $("repTopCat").textContent = list.length > 0 ? list[0][0] + " (" + formatMoney(list[0][1]) + ")" : "None yet";
 
-  // chart: income and expenses for the last 6 months
+  var box = $("repBreakdown");
+  box.innerHTML = "";
+  if (list.length === 0) {
+    box.appendChild(makeEl("p", "empty", "No expenses in this month."));
+  }
+  for (var k = 0; k < list.length; k++) {
+    var percent = list[k][1] / expense * 100;
+    var color = categoryColors[list[k][0]] || categoryPalette[k % categoryPalette.length];
+
+    var row = makeEl("div", "bar-row");
+    var top = makeEl("div", "top");
+    var left = makeEl("span", "");
+    var dot = makeEl("i", "dot");
+    dot.style.background = color;
+    left.appendChild(dot);
+    left.appendChild(document.createTextNode(list[k][0]));
+    top.appendChild(left);
+    top.appendChild(makeEl("span", "", formatMoney(list[k][1]) + " (" + Math.round(percent) + "%)"));
+
+    var bg = makeEl("div", "bar-bg");
+    var fill = makeEl("div", "bar-fill");
+    fill.style.width = percent + "%";
+    fill.style.background = color;
+    bg.appendChild(fill);
+
+    row.appendChild(top);
+    row.appendChild(bg);
+    box.appendChild(row);
+  }
+
+  // trend chart: income and expenses for the 6 months up to the chosen month
   var months = [];
   var maxValue = 0;
   for (var m = 5; m >= 0; m--) {
-    var first = new Date(now.getFullYear(), now.getMonth() - m, 1);
+    var first = new Date(sel.getFullYear(), sel.getMonth() - m, 1);
     var inc = 0;
     var exp = 0;
     for (var j = 0; j < transactions.length; j++) {
@@ -1324,6 +1546,9 @@ function showPage(page) {
   if (page === "settings") {
     fillSettingsDetails();
     $("setName").value = currentUser.name;
+    $("prefStart").value = (currentUser.prefs && currentUser.prefs.startPage) || "dashboard";
+    $("prefRecent").value = String(getRecentCount());
+    $("prefMsg").textContent = "";
     $("setMax").value = getMaxEntry();
     $("limitMsg").textContent = "";
     $("nameMsg").textContent = "";
@@ -1362,6 +1587,18 @@ function fillProfile() {
 }
 
 // ---------- settings ----------
+function getRecentCount() {
+  return (currentUser.prefs && currentUser.prefs.recentCount) || 5;
+}
+
+function savePrefs(event) {
+  event.preventDefault();
+  currentUser.prefs = { startPage: $("prefStart").value, recentCount: Number($("prefRecent").value) };
+  saveUsers();
+  showRecent();
+  setMsg("prefMsg", "Preferences saved.", true);
+}
+
 // fill the "User details" box at the top of Settings
 function fillSettingsDetails() {
   var weekly = currentUser.weeklyBudget || 0;

@@ -34,17 +34,13 @@
           </div>
         </div>
 
-        <!-- example preview card (right side of the home page) -->
-        <div class="mock" aria-hidden="true">
-          <div class="mock-cards">
-            <div class="mock-card m-in"><small>Income</small><b>₱20,000</b></div>
-            <div class="mock-card m-out"><small>Expenses</small><b>₱5,000</b></div>
-            <div class="mock-card m-bal"><small>Available</small><b>₱6,000</b></div>
-          </div>
-          <div class="mock-goal">
-            <div class="mock-goal-top"><span>New phone</span><b>₱30,000</b></div>
-            <div class="limit-bar"><div class="limit-fill" style="width: 30%"></div></div>
-            <small>₱9,000 saved • 30%</small>
+        <!-- tablet with your dashboard screenshot (right side of the home page) -->
+        <div class="tablet">
+          <span class="tablet-camera"></span>
+          <div class="tablet-screen">
+            <!-- put your dashboard screenshot in the Logo folder and name it dashboard.jpg (or change the file name here) -->
+            <img src="Logo/Dashboard.jpg" alt="Online Alkansya dashboard" onerror="this.parentNode.classList.add('no-img')">
+            <div class="tablet-placeholder">Put your dashboard screenshot here:<br>Logo/dashboard.jpg</div>
           </div>
         </div>
       </div>
@@ -92,30 +88,30 @@
 
     <section class="l-section">
       <h2>See it in action</h2>
-      <p class="l-sub">Two examples of what you will see inside the app.</p>
+      <p class="l-sub">Two pages from the app, so you know what to expect.</p>
       <div class="examples">
         <div class="example">
           <h3>Save for something you want</h3>
-          <p>Add a goal with its price and put savings into it step by step. The bar shows how close you are.</p>
-          <div class="mock" aria-hidden="true">
-            <div class="mock-cards">
-              <div class="mock-card m-in"><small>Income</small><b>₱25,000</b></div>
-              <div class="mock-card m-out"><small>Expenses</small><b>₱6,200</b></div>
-              <div class="mock-card m-bal"><small>Available</small><b>₱6,800</b></div>
+          <p>Add a goal with its price and put savings into it step by step. Every contribution is listed, and the bar shows how close you are.</p>
+          <div class="shot">
+            <div class="shot-bar"><i></i><i></i><i></i></div>
+            <div class="shot-screen">
+              <!-- put your Savings Goals screenshot in the Logo folder as goals.jpg -->
+              <img src="Logo/Goals.jpg" alt="Savings Goals page" onerror="this.parentNode.classList.add('no-img')">
+              <div class="shot-placeholder">Put your Savings Goals screenshot here:<br>Logo/goals.jpg</div>
             </div>
-            <div class="mock-goal"><div class="mock-goal-top"><span>New laptop</span><b>₱45,000</b></div><div class="limit-bar"><div class="limit-fill" style="width: 27%"></div></div><small>₱12,000 saved • 27%</small></div>
           </div>
         </div>
         <div class="example">
-          <h3>Stay within your weekly budget</h3>
-          <p>Set how much you can spend this week. The app shows what is left and about how much you can spend each day.</p>
-          <div class="mock" aria-hidden="true">
-            <div class="mock-cards">
-              <div class="mock-card m-in"><small>Income</small><b>₱3,000</b></div>
-              <div class="mock-card m-out"><small>Expenses</small><b>₱1,150</b></div>
-              <div class="mock-card m-bal"><small>Available</small><b>₱1,850</b></div>
+          <h3>Stay within your budget</h3>
+          <p>Set a spending limit, a weekly budget and monthly budgets for each category. The app shows what is left and how much you can spend each day.</p>
+          <div class="shot">
+            <div class="shot-bar"><i></i><i></i><i></i></div>
+            <div class="shot-screen">
+              <!-- put your Budgets screenshot in the Logo folder as budgets.jpg -->
+              <img src="Logo/Budget.jpg" alt="Budgets page" onerror="this.parentNode.classList.add('no-img')">
+              <div class="shot-placeholder">Put your Budgets screenshot here:<br>Logo/budgets.jpg</div>
             </div>
-            <div class="mock-goal"><div class="mock-goal-top"><span>Weekly budget</span><b>₱350 left</b></div><div class="limit-bar"><div class="limit-fill warn" style="width: 77%"></div></div><small>77% of your ₱1,500 weekly budget used</small></div>
           </div>
         </div>
       </div>
@@ -130,7 +126,16 @@
       </div>
     </section>
 
-    <section class="l-section">
+    <section class="l-section l-final">
+      <div class="l-cta">
+        <h2>Start tracking your money today</h2>
+        <p>Create a free account in less than a minute and see exactly where your allowance goes.</p>
+        <div class="l-btns center">
+          <button type="button" class="light big" onclick="openAuth('signup')">Get started free</button>
+          <button type="button" class="ghost big" onclick="openAuth('login')">Log in</button>
+        </div>
+      </div>
+
       <div class="l-notice">
         <div class="notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
         <div>
@@ -139,10 +144,6 @@
              recorded by users for personal budgeting and tracking purposes only.
              Every amount is typed in by you, and your records are saved only in this browser.</p>
         </div>
-      </div>
-      <div class="l-btns center">
-        <button type="button" class="big" onclick="openAuth('signup')">Get started</button>
-        <button type="button" class="secondary big" onclick="openAuth('login')">Log in</button>
       </div>
     </section>
 
@@ -273,11 +274,6 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
           </button>
         </div>
-        <div class="notice">
-          <div class="notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
-          <p class="notice-title">Tracker Notice</p>
-          <p class="notice-text">This tracker uses fictional amounts. No real money involved.</p>
-        </div>
       </div>
     </aside>
 
@@ -307,6 +303,18 @@
           <div><p>Saved for goals</p><h2 id="saved">₱0</h2></div>
         </div>
       </div>
+
+      <!-- quick actions -->
+      <section class="box quick">
+        <h3>Quick actions</h3>
+        <div class="quick-actions">
+          <button type="button" class="qa in" onclick="quickAdd('income')">+ Add income</button>
+          <button type="button" class="qa out" onclick="quickAdd('expense')">− Add expense</button>
+          <button type="button" class="qa" onclick="showPage('budgets')">Set a budget</button>
+          <button type="button" class="qa" onclick="showPage('goals')">New savings goal</button>
+          <button type="button" class="qa" onclick="showPage('reports')">View reports</button>
+        </div>
+      </section>
 
       <!-- monthly overview chart + progress cards -->
       <div class="dash-top">
@@ -347,15 +355,81 @@
         </div>
       </div>
 
-      <section class="box">
+      
+
+
+      <div class="columns">
+        <div>
+          <section class="box">
         <div class="limit-top">
           <h3>Recent Transactions</h3>
           <button type="button" class="link" onclick="showPage('history')">View all</button>
         </div>
         <ul class="recent" id="recentList"></ul>
       </section>
+          <section class="box">
+            <h3>Allowance tracker</h3>
+            <div class="detail"><span>Total allowance received</span><b id="allowTotal">₱0</b></div>
+            <div class="detail"><span>Times received</span><b id="allowCount">0</b></div>
+            <div class="detail"><span>Last allowance</span><b id="allowLast">None yet</b></div>
+          </section>
+        </div>
+        <div>
+          <section class="box">
+            <h3>Where your money goes</h3>
+            <div class="filters range">
+              <button type="button" id="rWeek" class="chip" onclick="setRange('week')">This week</button>
+              <button type="button" id="rMonth" class="chip" onclick="setRange('month')">This month</button>
+              <button type="button" id="rAll" class="chip active" onclick="setRange('all')">All time</button>
+            </div>
+            <div class="donutbox"><div class="donut" id="donut"><div><span><b id="donutTotal">₱0</b>spent</span></div></div></div>
+            <p class="note top-cat" id="topCat"></p>
+            <div id="bars"></div>
+          </section>
+        </div>
+      </div>
+    </main>
 
-      <!-- spending limit (depends on the user's own money) -->
+    <!-- ===== TRANSACTION HISTORY PAGE ===== -->
+    <main id="pageHistory" class="hidden">
+      <div class="page-head"><h1>Transactions</h1><p>Add income and expenses, then edit, delete, search and filter them.</p></div>
+
+      <div class="tx-layout">
+        <section class="box">
+            <h3 id="txTitle">Add a transaction</h3>
+            <form id="txForm" onsubmit="addTransaction(event)">
+              <div class="toggle">
+                <button type="button" id="btnIncome" class="on-income" onclick="setType('income')">Income</button>
+                <button type="button" id="btnExpense" onclick="setType('expense')">Expense</button>
+              </div>
+              <input type="text" id="desc" placeholder="Description" maxlength="100" required>
+              <div class="row">
+                <input type="number" id="amount" placeholder="Amount" min="0.01" step="0.01" required>
+                <select id="category"></select>
+              </div>
+              <p class="message" id="txMsg"></p>
+              <button type="submit" id="addBtn">Add income</button>
+              <button type="button" id="cancelEdit" class="secondary hidden" onclick="cancelEdit()">Cancel editing</button>
+            </form>
+          </section>
+
+        <section class="box">
+        <h3>All transactions</h3>
+        <div class="filters">
+          <input type="text" id="search" placeholder="Search..." oninput="render()">
+          <button type="button" id="fAll" class="chip active" onclick="setFilter('all')">All</button>
+          <button type="button" id="fIncome" class="chip" onclick="setFilter('income')">Income</button>
+          <button type="button" id="fExpense" class="chip" onclick="setFilter('expense')">Expenses</button>
+        </div>
+        <ul id="list"></ul>
+      </section>
+      </div>
+    </main>
+
+    <!-- ===== BUDGETS PAGE ===== -->
+    <main id="pageBudgets" class="hidden">
+      <div class="page-head"><h1>Budgets</h1><p>Your spending limit, weekly budget and monthly budgets by category. Amounts are for tracking only.</p></div>
+
       <section class="box limit-box">
         <div class="limit-top">
           <h3>Spending limit</h3>
@@ -379,70 +453,6 @@
         </form>
         <p class="message" id="weekMsg"></p>
       </section>
-
-      <div class="columns">
-        <!-- left column -->
-        <div>
-          <section class="box">
-            <h3>Add a transaction</h3>
-            <form id="txForm" onsubmit="addTransaction(event)">
-              <div class="toggle">
-                <button type="button" id="btnIncome" class="on-income" onclick="setType('income')">Income</button>
-                <button type="button" id="btnExpense" onclick="setType('expense')">Expense</button>
-              </div>
-              <input type="text" id="desc" placeholder="Description" maxlength="100" required>
-              <div class="row">
-                <input type="number" id="amount" placeholder="Amount" min="0.01" step="0.01" required>
-                <select id="category"></select>
-              </div>
-              <p class="message" id="txMsg"></p>
-              <button type="submit" id="addBtn">Add income</button>
-            </form>
-          </section>
-
-          <section class="box">
-            <h3>Allowance tracker</h3>
-            <div class="detail"><span>Total allowance received</span><b id="allowTotal">₱0</b></div>
-            <div class="detail"><span>Times received</span><b id="allowCount">0</b></div>
-            <div class="detail"><span>Last allowance</span><b id="allowLast">None yet</b></div>
-          </section>
-        </div>
-
-        <!-- right column -->
-        <div>
-          <section class="box">
-            <h3>Where your money goes</h3>
-            <div class="filters range">
-              <button type="button" id="rWeek" class="chip" onclick="setRange('week')">This week</button>
-              <button type="button" id="rMonth" class="chip" onclick="setRange('month')">This month</button>
-              <button type="button" id="rAll" class="chip active" onclick="setRange('all')">All time</button>
-            </div>
-            <div class="donutbox"><div class="donut" id="donut"><div><span><b id="donutTotal">₱0</b>spent</span></div></div></div>
-            <p class="note top-cat" id="topCat"></p>
-            <div id="bars"></div>
-          </section>
-        </div>
-      </div>
-    </main>
-
-    <!-- ===== TRANSACTION HISTORY PAGE ===== -->
-    <main id="pageHistory" class="hidden">
-      <div class="page-head"><h1>Transaction History</h1><p>All your income and expenses in one place</p></div>
-
-      <section class="box">
-        <div class="filters">
-          <input type="text" id="search" placeholder="Search..." oninput="render()">
-          <button type="button" id="fAll" class="chip active" onclick="setFilter('all')">All</button>
-          <button type="button" id="fIncome" class="chip" onclick="setFilter('income')">Income</button>
-          <button type="button" id="fExpense" class="chip" onclick="setFilter('expense')">Expenses</button>
-        </div>
-        <ul id="list"></ul>
-      </section>
-    </main>
-
-    <!-- ===== BUDGETS PAGE ===== -->
-    <main id="pageBudgets" class="hidden">
-      <div class="page-head"><h1>Budgets</h1><p>Set a monthly limit for each expense category and see how much is left. Amounts are for tracking only.</p></div>
 
       <div class="tiles tiles3">
         <div class="tile"><small>Total budgeted</small><b id="budTotal"></b></div>
@@ -477,7 +487,18 @@
 
     <!-- ===== CATEGORIES PAGE ===== -->
     <main id="pageCategories" class="hidden">
-      <div class="page-head"><h1>Categories</h1><p>See how your expenses and income are grouped.</p></div>
+      <div class="page-head"><h1>Categories</h1><p>Add your own categories and see how your expenses and income are grouped.</p></div>
+
+      <section class="box">
+        <h3>Add a category</h3>
+        <form class="cat-form" onsubmit="addCategory(event)">
+          <select id="catKind"><option value="expense">Expense</option><option value="income">Income</option></select>
+          <input type="text" id="catName" placeholder="Category name (e.g. School Projects)" maxlength="30" required>
+          <button type="submit">Add category</button>
+        </form>
+        <p class="message" id="catMsg"></p>
+      </section>
+
       <div class="columns">
         <section class="box"><h3>Expense categories</h3><div id="catExpense"></div></section>
         <section class="box"><h3>Income categories</h3><div id="catIncome"></div></section>
@@ -486,18 +507,24 @@
 
     <!-- ===== REPORTS & ANALYTICS PAGE ===== -->
     <main id="pageReports" class="hidden">
-      <div class="page-head"><h1>Reports &amp; Analytics</h1><p>A summary of this month and the last 6 months.</p></div>
+      <div class="page-head"><h1>Reports &amp; Analytics</h1><p>Monthly reports, your spending breakdown and trends over time.</p></div>
+
+      <div class="month-nav">
+        <button type="button" class="secondary" id="repPrev" onclick="changeReportMonth(-1)" aria-label="Previous month">‹</button>
+        <b id="repMonth"></b>
+        <button type="button" class="secondary" id="repNext" onclick="changeReportMonth(1)" aria-label="Next month">›</button>
+      </div>
 
       <div class="tiles">
-        <div class="tile in"><small>Income this month</small><b id="repIncome"></b></div>
-        <div class="tile out"><small>Expenses this month</small><b id="repExpense"></b></div>
-        <div class="tile bal"><small>Net this month</small><b id="repNet"></b></div>
+        <div class="tile in"><small>Income</small><b id="repIncome"></b></div>
+        <div class="tile out"><small>Expenses</small><b id="repExpense"></b></div>
+        <div class="tile bal"><small>Net</small><b id="repNet"></b></div>
         <div class="tile"><small>Savings rate</small><b id="repRate"></b></div>
       </div>
 
       <div class="columns">
         <section class="box">
-          <h3>Last 6 months</h3>
+          <h3>Trend: last 6 months</h3>
           <div class="chart-legend">
             <span><i class="dot" style="background:#12a566"></i>Income</span>
             <span><i class="dot" style="background:#e5384f"></i>Expenses</span>
@@ -506,13 +533,18 @@
         </section>
 
         <section class="box">
-          <h3>This month at a glance</h3>
+          <h3>Month at a glance</h3>
           <div class="detail"><span>Transactions</span><b id="repCount"></b></div>
           <div class="detail"><span>Average spending per day</span><b id="repAvgDay"></b></div>
           <div class="detail"><span>Top spending category</span><b id="repTopCat"></b></div>
           <div class="detail"><span>Biggest expense</span><b id="repBiggest"></b></div>
         </section>
       </div>
+
+      <section class="box">
+        <h3>Spending breakdown</h3>
+        <div id="repBreakdown"></div>
+      </section>
     </main>
 
     <!-- ===== PROFILE PAGE ===== -->
@@ -568,6 +600,31 @@
         <div class="detail"><span>Savings goals</span><b id="setDetGoals"></b></div>
         <div class="detail"><span>Weekly budget</span><b id="setDetWeekly"></b></div>
         <div class="detail"><span>Max amount per entry</span><b id="setDetMax"></b></div>
+      </section>
+
+      <section class="box">
+        <div class="set-head">
+          <div class="set-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></div>
+          <div><h3>Preferences</h3><p class="note">Choose how the app opens and what it shows.</p></div>
+        </div>
+        <form class="stack" onsubmit="savePrefs(event)">
+          <label class="field-label" for="prefStart">Page to open after log in</label>
+          <select id="prefStart">
+            <option value="dashboard">Dashboard</option>
+            <option value="history">Transactions</option>
+            <option value="budgets">Budgets</option>
+            <option value="goals">Savings Goals</option>
+            <option value="reports">Reports &amp; Analytics</option>
+          </select>
+          <label class="field-label" for="prefRecent">Recent transactions on the dashboard</label>
+          <select id="prefRecent">
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+          </select>
+          <p class="message" id="prefMsg"></p>
+          <button type="submit">Save preferences</button>
+        </form>
       </section>
 
       <section class="box">
