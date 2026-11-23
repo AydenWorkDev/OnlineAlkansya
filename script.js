@@ -83,6 +83,77 @@ function showLanding() {
   window.scrollTo(0, 0);
 }
 
+// "Explore Features" button: scroll down to the Features section
+function scrollToFeatures() {
+  var section = $("features");
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+// ---------- footer pop-ups: Privacy Policy, Terms and Copyright ----------
+var legalPages = {
+  privacy: {
+    title: "Privacy Policy",
+    updated: "Last updated: November 2026",
+    sections: [
+      ["Information you give us", "When you sign up, you enter your name, email and a password. After that, you enter your own transactions, budgets, categories and savings goals."],
+      ["Where your information is stored", "Everything is saved only in your own browser on this device (local storage). Online Alkansya has no server or database, and it does not send your information to us or to anyone else."],
+      ["How your information is used", "Your information is used only to show your dashboard, budgets, goals and reports inside the app. We do not sell it, share it or use it for advertising."],
+      ["Your control", "You can delete your transactions or your whole account at any time in Settings. Clearing your browser data also removes everything saved by the app."],
+      ["A tip about passwords", "Because everything stays in your browser, use a password that you do not use for any other account."]
+    ]
+  },
+  terms: {
+    title: "Terms",
+    updated: "Last updated: November 2026",
+    sections: [
+      ["Purpose of the app", "Online Alkansya is a personal finance tracking tool for budgeting and learning. It is not a bank or a payment service. It does not store, transfer or process real money."],
+      ["Your responsibility", "All amounts are typed in by you, so you are responsible for keeping them accurate. Please keep your login details private."],
+      ["Not financial advice", "Budgets, reports and totals are for information only. They are not financial, legal or tax advice."],
+      ["Your data and availability", "Your records are saved only in your browser, so they can be lost if you clear your browser data or change devices. The app is provided as is, without any guarantee."],
+      ["Fair use", "Please use the app only for your own personal tracking and do not try to misuse or damage it."],
+      ["Changes", "These terms may be updated from time to time. Using the app after a change means you accept the updated terms."]
+    ]
+  },
+  copyright: {
+    title: "Copyright",
+    updated: "© 2026 Online Alkansya. All Rights Reserved.",
+    sections: [
+      ["Ownership", "The name, logo, design, text and source code of Online Alkansya are protected by copyright."],
+      ["Permission", "You may not copy, republish or distribute any part of the app or this website without permission from its owner."],
+      ["Your records", "The amounts and notes you enter belong to you. All amounts shown in the app are for tracking only and do not represent real money."]
+    ]
+  }
+};
+
+function openLegal(kind) {
+  var page = legalPages[kind];
+  if (!page) return;
+  $("legalTitle").textContent = page.title;
+  $("legalUpdated").textContent = page.updated;
+
+  var body = $("legalBody");
+  body.innerHTML = "";
+  for (var i = 0; i < page.sections.length; i++) {
+    body.appendChild(makeEl("h3", "", page.sections[i][0]));
+    body.appendChild(makeEl("p", "", page.sections[i][1]));
+  }
+  body.scrollTop = 0;
+  $("legalModal").classList.remove("hidden");
+  document.body.classList.add("menu-open");     // stop the page behind from scrolling
+}
+
+function closeLegal() {
+  $("legalModal").classList.add("hidden");
+  document.body.classList.remove("menu-open");
+}
+
+// the Esc key closes the pop-up
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") closeLegal();
+});
+
 // open the separate login or signup page
 function openAuth(newMode) {
   $("landingView").classList.add("hidden");
