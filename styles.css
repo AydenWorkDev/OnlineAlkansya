@@ -953,7 +953,7 @@ html { scroll-behavior: smooth; }
 /* ---------- B. hero ---------- */
 .l-hero { background: linear-gradient(160deg, var(--primary) 0%, var(--brand) 100%); color: #fff; }
 .l-hero-inner { max-width: 1140px; margin: 0 auto; padding: 72px 24px 88px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: center; }
-.l-badge { display: inline-block; margin-bottom: 20px; padding: 6px 14px; border-radius: 99px; background: #ffffff1f; border: 1px solid #ffffff33; font-size: 13px; }
+/* .l-badge { display: inline-block; margin-bottom: 20px; padding: 6px 14px; border-radius: 99px; background: #ffffff1f; border: 1px solid #ffffff33; font-size: 13px; } */
 .l-hero h1 { margin: 0 0 18px; font-size: clamp(34px, 5vw, 52px); line-height: 1.1; letter-spacing: -0.5px; }
 .l-hero p { max-width: 540px; margin: 0 0 30px; font-size: 18px; line-height: 1.65; color: #cfd8f5; }
 .l-hero-btns { display: flex; flex-wrap: wrap; gap: 14px; }
