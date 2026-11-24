@@ -809,7 +809,7 @@ input:focus, select:focus { outline: none; border-color: #5b5bf0; box-shadow: 0 
 @media (max-width: 900px) {
    .tx-layout { grid-template-columns: 1fr; } 
 }
-#cancelEdit { margin-top: 0; }
+#cancelEditBtn { margin-top: 0; }
 
 .edit { background: transparent; color: #6b7490; font-size: 16px; padding: 4px 8px; }
 .edit:hover { color: #5b5bf0; opacity: 1; }
@@ -953,8 +953,8 @@ html { scroll-behavior: smooth; }
 /* ---------- B. hero ---------- */
 .l-hero { background: linear-gradient(160deg, var(--primary) 0%, var(--brand) 100%); color: #fff; }
 .l-hero-inner { max-width: 1140px; margin: 0 auto; padding: 72px 24px 88px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: center; }
-/* .l-badge { display: inline-block; margin-bottom: 20px; padding: 6px 14px; border-radius: 99px; background: #ffffff1f; border: 1px solid #ffffff33; font-size: 13px; } */
-.l-hero h1 { margin: 0 0 18px; font-size: clamp(34px, 5vw, 52px); line-height: 1.1; letter-spacing: -0.5px; }
+/* .l-badge { display: inline-block; margin-bottom: 20px; padding: 6px 14px; border-radius: 99px; background: #ffffff1f; border: 1px solid #ffffff33; font-size: 13px; }*/
+.l-hero h1 { margin: 0 0 18px; font-size: clamp(34px, 5vw, 52px); line-height: 1.1; letter-spacing: -0.5px; } 
 .l-hero p { max-width: 540px; margin: 0 0 30px; font-size: 18px; line-height: 1.65; color: #cfd8f5; }
 .l-hero-btns { display: flex; flex-wrap: wrap; gap: 14px; }
 .l-trust { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 26px 0 0; padding: 0; font-size: 14px; color: #cfd8f5; }
@@ -1177,3 +1177,84 @@ p { line-height: 1.65; }
 }
 .card h2, .tile b, .big-pct { font-weight: 700; letter-spacing: -0.02em; }
 .note, .small, small { font-weight: 400; }
+
+/* =====================================================================
+   Professional polish: typography, cards, sidebar, charts, controls
+   ===================================================================== */
+::selection { background: #dcdafe; }
+:focus-visible { outline: 2px solid #625CF6; outline-offset: 2px; }
+input:focus-visible, select:focus-visible { outline: none; }
+
+body { font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+h1, h2, h3 { letter-spacing: -0.015em; }
+main h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+
+/* money and numbers line up neatly */
+.card h2, .tile b, .amount, .detail b, .limit-top span, .goal-price, .big-pct, .bar-row, .cat-right, .contrib-list, .ov-axis, .how-num { font-variant-numeric: tabular-nums; }
+
+/* every app page uses the full width, like the Dashboard */
+#pageBudgets, #pageCategories, #pageReports, #pageHelp { max-width: none; margin: 0; }
+
+/* sidebar: room for "Reports & Analytics" and long names */
+@media (min-width: 801px) { .sidebar { width: 256px; } }
+.sidebar .nav { font-size: 14.5px; font-weight: 500; white-space: nowrap; }
+.sidebar .nav.active { font-weight: 600; }
+.sidebar .user-area #userName { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.sidebar .user-text { flex: 1; }
+
+/* summary cards: clean white cards with a tinted icon (no loud gradients) */
+.cards .card { background: #fff; color: #172554; border: 1px solid #e6eaf5; box-shadow: 0 1px 2px #1725540a, 0 8px 24px #1725540d; }
+.cards .card p { margin: 0 0 4px; opacity: 1; color: #64748b; font-size: 13px; font-weight: 500; }
+.cards .card h2 { color: #172554; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.cards .card-icon svg { stroke: currentColor; }
+.cards .card.balance .card-icon { background: #eceafe; color: #5b5bf0; }
+.cards .card.income  .card-icon { background: #dcf5e8; color: #12a566; }
+.cards .card.expense .card-icon { background: #ffe4e8; color: #e5384f; }
+.cards .card.goals   .card-icon { background: #fdf0d5; color: #d98a0a; }
+
+/* panels */
+.box { border-color: #e6eaf5; box-shadow: 0 1px 2px #1725540a, 0 10px 28px #17255410; }
+.box h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.note { font-size: 13.5px; }
+
+/* progress bars: one solid brand colour, colour changes only to warn */
+.limit-fill { background: #625CF6; }
+
+/* form controls */
+input, select { border-color: #d9dfef; border-radius: 10px; font-size: 15px; }
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+button { font-weight: 600; }
+
+/* transaction list */
+.item .info b { font-weight: 600; }
+.item .amount { min-width: 100px; text-align: right; font-size: 15px; }
+.item .edit, .item .delete {
+  width: 34px; height: 34px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; color: #94a3b8; background: transparent;
+}
+.item .edit:hover { background: #eef0fb; color: #5b5bf0; opacity: 1; }
+.item .delete:hover { background: #ffe9ed; color: #e5384f; opacity: 1; }
+.item .edit svg, .item .delete svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* charts: empty periods draw no bar */
+.ov-bar, .chart-bar { min-height: 0; }
+
+/* let grid and form items shrink on small screens (prevents sideways scrolling) */
+.tx-layout > *, .columns > *, .dash-top > *, .row > * { min-width: 0; }
+input, select { min-width: 0; }
+@media (max-width: 560px) { .item .amount { min-width: 0; } }
+
+/* the transaction being edited */
+.item.editing { background: #f1f0ff; box-shadow: inset 0 0 0 1px #cfcdfb; }
+#cancelEditBtn { margin-top: 0; }
+.item .edit svg { width: 16px; height: 16px; }

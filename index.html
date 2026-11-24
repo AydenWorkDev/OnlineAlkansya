@@ -6,7 +6,6 @@
   <meta name="description" content="Online Alkansya is a simple personal finance tracker for students. Record your income and expenses, set budgets and save for what you want.">
   <meta name="theme-color" content="#172554">
   <link rel="icon" href="Logo/OnlineAlkanysa_Logo.png">
-  <!-- Inter: a clean, professional font used by many finance and software websites -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,11 +20,11 @@
     <!-- ===== A. NAVIGATION BAR (sticky) ===== -->
     <header class="l-topnav">
       <div class="l-topnav-inner">
-        <a class="brand" href="#home" onclick="closeNav()"><img src="Logo/OnlineAlkanysa_Logo.png" alt="">Online Alkansya</a>
+        <a class="brand" href="#home" onclick="goHome(event)"><img src="Logo/OnlineAlkanysa_Logo.png" alt="">Online Alkansya</a>
 
         <div class="l-menu" id="navMenu">
           <nav class="l-links" aria-label="Main navigation">
-            <a href="#home" onclick="closeNav()">Home</a>
+            <a href="#home" onclick="goHome(event)">Home</a>
             <a href="#about" onclick="closeNav()">About</a>
             <a href="#features" onclick="closeNav()">Features</a>
             <a href="#how-it-works" onclick="closeNav()">How It Works</a>
@@ -46,7 +45,7 @@
     <section class="l-hero" id="home">
       <div class="l-hero-inner">
         <div>
-          <!-- <span class="l-badge">Personal Tracker</span> //close this line if you don't want the badge to show -->
+          <!-- <span class="l-badge">Personal Tracker</span> -->
           <h1>Track your money. Save for what you want.</h1>
           <p>Online Alkansya is a simple personal finance tracker designed especially for students. Record your allowance, track your daily spending, and set savings goals for the things you want to buy.</p>
           <div class="l-hero-btns">
@@ -221,7 +220,7 @@
             <div class="shot-bar"><i></i><i></i><i></i></div>
             <div class="shot-screen">
               <img src="Logo/Budget.jpg" alt="Budgets page" onerror="this.parentNode.classList.add('no-img')">
-              <div class="shot-placeholder">Put your Budgets screenshot here:<br>Logo/Budget.jpg</div>
+              <div class="shot-placeholder">Put your Budgets screenshot here:<br>Logo/Budget.png</div>
             </div>
           </div>
         </div>
@@ -308,13 +307,13 @@
     <footer class="l-footer">
       <div class="l-footer-inner">
         <div class="l-footer-brand">
-          <a class="brand" href="#home"><img src="Logo/OnlineAlkanysa_Logo.png" alt="">Online Alkansya</a>
+          <a class="brand" href="#home" onclick="goHome(event)"><img src="Logo/OnlineAlkanysa_Logo.png" alt="">Online Alkansya</a>
           <p>A simple personal finance tracker for students and individuals. Record your income and expenses, set budgets, and save for what you want.</p>
         </div>
         <nav aria-label="Quick links">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="#home">Home</a></li>
+            <li><a href="#home" onclick="goHome(event)">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#how-it-works">How It Works</a></li>
@@ -331,7 +330,7 @@
       </div>
       <div class="l-footer-bottom">
         <p class="l-disclaimer">Online Alkansya is a personal finance tracking application. It does not store, transfer, or process actual money. All amounts are entered manually by users for personal tracking only.</p>
-        <p class="l-copy">© 2026 Online Alkansya | Income and Expenses tracker. All Rights Reserved.</p>
+        <p class="l-copy">© 2026 Online Alkansya. Designed and Developed by Cris Allen Tica. All Rights Reserved.</p>
       </div>
     </footer>
   </div>
@@ -595,7 +594,7 @@
               </div>
               <p class="message" id="txMsg"></p>
               <button type="submit" id="addBtn">Add income</button>
-              <button type="button" id="cancelEdit" class="secondary hidden" onclick="cancelEdit()">Cancel editing</button>
+              <button type="button" id="cancelEditBtn" class="secondary hidden" onclick="cancelEdit()">Cancel editing</button>
             </form>
           </section>
 
@@ -808,6 +807,9 @@
             <option value="5">5</option>
             <option value="10">10</option>
           </select>
+          <label class="field-label" for="prefCurrency">Currency (money sign)</label>
+          <select id="prefCurrency"></select>
+          <p class="note">Changes the money sign shown everywhere in the app. Your amounts are not converted.</p>
           <p class="message" id="prefMsg"></p>
           <button type="submit">Save preferences</button>
         </form>

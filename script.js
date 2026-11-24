@@ -71,8 +71,81 @@ function findUser(email) {
   return null;
 }
 
+// currencies the user can choose in Settings (the amounts are not converted, only the money sign changes)
+var CURRENCIES = [
+  { code: "PHP", symbol: "₱",   name: "Philippine Peso" },
+  { code: "USD", symbol: "$",   name: "US Dollar" },
+  { code: "EUR", symbol: "€",   name: "Euro" },
+  { code: "GBP", symbol: "£",   name: "British Pound" },
+  { code: "JPY", symbol: "¥",   name: "Japanese Yen", decimals: 0 },
+  { code: "KRW", symbol: "₩",   name: "South Korean Won", decimals: 0 },
+  { code: "CNY", symbol: "CN¥", name: "Chinese Yuan" },
+  { code: "INR", symbol: "₹",   name: "Indian Rupee" },
+  { code: "IDR", symbol: "Rp",  name: "Indonesian Rupiah", decimals: 0 },
+  { code: "MYR", symbol: "RM",  name: "Malaysian Ringgit" },
+  { code: "SGD", symbol: "S$",  name: "Singapore Dollar" },
+  { code: "THB", symbol: "฿",   name: "Thai Baht" },
+  { code: "VND", symbol: "₫",   name: "Vietnamese Dong", decimals: 0 },
+  { code: "HKD", symbol: "HK$", name: "Hong Kong Dollar" },
+  { code: "AUD", symbol: "A$",  name: "Australian Dollar" },
+  { code: "NZD", symbol: "NZ$", name: "New Zealand Dollar" },
+  { code: "CAD", symbol: "C$",  name: "Canadian Dollar" },
+  { code: "CHF", symbol: "CHF", name: "Swiss Franc" },
+  { code: "AED", symbol: "AED", name: "UAE Dirham" },
+  { code: "SAR", symbol: "SAR", name: "Saudi Riyal" },
+  { code: "BRL", symbol: "R$",  name: "Brazilian Real" },
+  { code: "MXN", symbol: "MX$", name: "Mexican Peso" },
+  { code: "ZAR", symbol: "R",   name: "South African Rand" },
+  { code: "NGN", symbol: "₦",   name: "Nigerian Naira" },
+  { code: "PKR", symbol: "Rs",  name: "Pakistani Rupee" },
+  { code: "BDT", symbol: "৳",   name: "Bangladeshi Taka" },
+  { code: "TRY", symbol: "₺",   name: "Turkish Lira" }
+];
+
+// the currency of the logged in user (Philippine Peso by default)
+function getCurrency() {
+  var code = (currentUser && currentUser.currency) || "PHP";
+  for (var i = 0; i < CURRENCIES.length; i++) {
+    if (CURRENCIES[i].code === code) return CURRENCIES[i];
+  }
+  return CURRENCIES[0];
+}
+
+function sym() {
+  return getCurrency().symbol;
+}
+
+// the money sign as it is written in front of a number ("RM 50", "$50")
+function moneySign() {
+  var s = sym();
+  return (s.length > 1 && /[A-Za-z]$/.test(s)) ? s + " " : s;
+}
+
 function formatMoney(number) {
-  return "₱" + Number(number).toLocaleString("en-PH", { maximumFractionDigits: 2 });
+  var digits = (getCurrency().decimals === 0) ? 0 : 2;
+  return moneySign() + Number(number).toLocaleString("en-US", { maximumFractionDigits: digits });
+}
+
+// texts that mention the money sign (placeholders and labels)
+function applyCurrencyLabels() {
+  var s = sym();
+  $("weekInput").placeholder = "Set your weekly budget (" + s + ")";
+  $("goalTarget").placeholder = "Price (" + s + ")";
+  var label = document.querySelector('label[for="setMax"]');
+  if (label) label.textContent = "Max amount per entry (" + s + ")";
+}
+
+// fill the currency list in Settings
+function fillCurrencyOptions() {
+  var select = $("prefCurrency");
+  select.innerHTML = "";
+  for (var i = 0; i < CURRENCIES.length; i++) {
+    var option = document.createElement("option");
+    option.value = CURRENCIES[i].code;
+    option.textContent = CURRENCIES[i].symbol + "  " + CURRENCIES[i].name + " (" + CURRENCIES[i].code + ")";
+    select.appendChild(option);
+  }
+  select.value = getCurrency().code;
 }
 
 // ---------- home page (before login and signup) ----------
@@ -174,6 +247,13 @@ function closeNav() {
   setNav(false);
 }
 
+// "Home": scroll to the very top of the page, so the whole hero shows under the top bar
+function goHome(event) {
+  if (event) event.preventDefault();
+  closeNav();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 // the menu also closes with the Esc key, when you tap outside it, or when the screen gets wide
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") closeNav();
@@ -185,6 +265,12 @@ document.addEventListener("click", function (event) {
 window.addEventListener("resize", function () {
   if (window.innerWidth > 860) closeNav();
 });
+
+// soft shadow under the top bar after the page is scrolled
+window.addEventListener("scroll", function () {
+  var bar = document.querySelector(".l-topnav");
+  if (bar) bar.classList.toggle("scrolled", window.scrollY > 8);
+}, { passive: true });
 
 // open the separate login or signup page
 function openAuth(newMode) {
@@ -348,6 +434,7 @@ function startApp(user) {
   localStorage.setItem("alkansya_loggedin", user.email);
   loadTransactions();
   loadGoals();
+  applyCurrencyLabels();
 
   $("userName").textContent = user.name;
   $("sideAvatar").textContent = user.name.charAt(0).toUpperCase();
@@ -492,7 +579,7 @@ function startEdit(id) {
   $("desc").value = t.description;
   $("amount").value = t.amount;
   $("txTitle").textContent = "Edit transaction";
-  $("cancelEdit").classList.remove("hidden");
+  $("cancelEditBtn").classList.remove("hidden");
   $("txMsg").textContent = "";
   $("txForm").scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -502,7 +589,7 @@ function cancelEdit() {
   $("txForm").reset();
   $("txMsg").textContent = "";
   $("txTitle").textContent = "Add a transaction";
-  $("cancelEdit").classList.add("hidden");
+  $("cancelEditBtn").classList.add("hidden");
   setType(type);
 }
 
@@ -661,6 +748,9 @@ function showBars() {
   $("topCat").textContent = "Biggest spending: " + list[0][0] + " (" + Math.round(list[0][1] / totalExpense * 100) + "%)";
 }
 
+var ICON_EDIT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>';
+var ICON_TRASH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
+
 function showList() {
   var list = $("list");
   list.innerHTML = "";
@@ -678,7 +768,7 @@ function showList() {
     var isIncome = (t.type === "income");
     var cls = isIncome ? "in" : "out";
 
-    var li = makeEl("li", "item");
+    var li = makeEl("li", t.id === editingId ? "item editing" : "item");
     li.appendChild(makeEl("div", "arrow " + cls, isIncome ? "↑" : "↓"));
 
     var info = makeEl("div", "info");
@@ -688,13 +778,15 @@ function showList() {
 
     li.appendChild(makeEl("div", "amount " + cls, (isIncome ? "+ " : "- ") + formatMoney(t.amount)));
 
-    var edit = makeEl("button", "edit", "✎");
+    var edit = makeEl("button", "edit");
+    edit.innerHTML = ICON_EDIT;
     edit.type = "button";
     edit.title = "Edit";
     edit.onclick = makeEditHandler(t.id);
     li.appendChild(edit);
 
-    var del = makeEl("button", "delete", "×");
+    var del = makeEl("button", "delete");
+    del.innerHTML = ICON_TRASH;
     del.type = "button";
     del.title = "Delete";
     del.onclick = makeDeleteHandler(t.id);
@@ -777,7 +869,7 @@ function saveLimits(event) {
   var max = Number($("setMax").value);
 
   if (!(max >= 1) || max > 100000000) {
-    setMsg("limitMsg", "The max amount per entry must be between ₱1 and ₱100,000,000.");
+    setMsg("limitMsg", "The max amount per entry must be between " + formatMoney(1) + " and " + formatMoney(100000000) + ".");
     return;
   }
 
@@ -821,7 +913,7 @@ function addGoal(event) {
     return;
   }
   if (!(target > 0) || target > 100000000) {
-    setMsg("goalMsg", "The price must be between ₱1 and ₱100,000,000.");
+    setMsg("goalMsg", "The price must be between " + formatMoney(1) + " and " + formatMoney(100000000) + ".");
     return;
   }
 
@@ -966,7 +1058,7 @@ function showGoals() {
       input.type = "number";
       input.min = "1";
       input.step = "0.01";
-      input.placeholder = "Amount to save (₱)";
+      input.placeholder = "Amount to save (" + sym() + ")";
       var addBtn = makeEl("button", "", "Add savings");
       addBtn.type = "button";
       addBtn.onclick = makeSaveHandler(goal.id, input, msgBox);
@@ -1005,9 +1097,26 @@ function niceMax(value) {
   return 10 * magnitude;
 }
 
+// a clean step for the chart (1, 2, 2.5, 5 or 10 times a round number) and how many steps fit
+function niceScale(value) {
+  if (value <= 0) return { step: 1000, count: 4 };
+  var rough = value / 4;
+  var magnitude = Math.pow(10, Math.floor(Math.log(rough) / Math.LN10));
+  var choices = [1, 2, 2.5, 5, 10];
+  var step = 10 * magnitude;
+  for (var i = 0; i < choices.length; i++) {
+    if (choices[i] * magnitude >= rough) {
+      step = choices[i] * magnitude;
+      break;
+    }
+  }
+  var count = Math.max(2, Math.ceil(value / step));
+  return { step: step, count: count };
+}
+
 function axisLabel(n) {
-  if (n === 0) return "₱0";
-  return "₱" + (n >= 1000 ? (Math.round(n / 100) / 10) + "K" : Math.round(n));
+  if (n === 0) return moneySign() + "0";
+  return moneySign() + (n >= 1000 ? (Math.round(n / 100) / 10) + "K" : Math.round(n));
 }
 
 function showOverview() {
@@ -1034,23 +1143,24 @@ function showOverview() {
   for (var k = 0; k < weeks; k++) {
     maxValue = Math.max(maxValue, inc[k], exp[k]);
   }
-  var top = niceMax(maxValue);
+  var scale = niceScale(maxValue);
+  var top = scale.step * scale.count;
 
   $("ovMonth").textContent = now.toLocaleDateString("en-US", { month: "long" });
 
   // left side numbers
   var axis = $("ovAxis");
   axis.innerHTML = "";
-  for (var a = 4; a >= 0; a--) {
-    axis.appendChild(makeEl("span", "", axisLabel(top * a / 4)));
+  for (var a = scale.count; a >= 0; a--) {
+    axis.appendChild(makeEl("span", "", axisLabel(scale.step * a)));
   }
 
   // lines and bars
   var plot = $("ovPlot");
   plot.innerHTML = "";
-  for (var g = 0; g <= 4; g++) {
+  for (var g = 0; g <= scale.count; g++) {
     var line = makeEl("div", "ov-line");
-    line.style.bottom = (g * 25) + "%";
+    line.style.bottom = (g / scale.count * 100) + "%";
     plot.appendChild(line);
   }
   var cols = makeEl("div", "ov-cols");
@@ -1064,9 +1174,11 @@ function showOverview() {
     var barIn = makeEl("div", "ov-bar in");
     barIn.style.height = (inc[c] / top * 100) + "%";
     barIn.title = "Income: " + formatMoney(inc[c]);
+    if (inc[c] > 0) barIn.style.minHeight = "3px";
     var barOut = makeEl("div", "ov-bar out");
     barOut.style.height = (exp[c] / top * 100) + "%";
     barOut.title = "Expenses: " + formatMoney(exp[c]);
+    if (exp[c] > 0) barOut.style.minHeight = "3px";
     col.appendChild(barIn);
     col.appendChild(barOut);
     cols.appendChild(col);
@@ -1195,7 +1307,7 @@ function showBudgets() {
     input.type = "number";
     input.min = "0";
     input.step = "1";
-    input.placeholder = "Monthly budget for " + cat + " (₱)";
+    input.placeholder = "Monthly budget for " + cat + " (" + sym() + ")";
     input.value = (limit > 0) ? limit : "";
     input.setAttribute("data-cat", cat);
     row.appendChild(input);
@@ -1216,7 +1328,7 @@ function saveCategoryBudgets() {
   for (var i = 0; i < inputs.length; i++) {
     var value = Number(inputs[i].value || 0);
     if (value < 0 || value > 100000000) {
-      setMsg("budMsg", "Each budget must be between ₱0 and ₱100,000,000.");
+      setMsg("budMsg", "Each budget must be between " + formatMoney(0) + " and " + formatMoney(100000000) + ".");
       return;
     }
     if (value > 0) {
@@ -1475,10 +1587,12 @@ function showReports() {
     var barIn = makeEl("div", "chart-bar in");
     barIn.style.height = (maxValue > 0 ? months[c].inc / maxValue * 100 : 0) + "%";
     barIn.title = "Income: " + formatMoney(months[c].inc);
+    if (months[c].inc > 0) barIn.style.minHeight = "3px";
 
     var barOut = makeEl("div", "chart-bar out");
     barOut.style.height = (maxValue > 0 ? months[c].exp / maxValue * 100 : 0) + "%";
     barOut.title = "Expenses: " + formatMoney(months[c].exp);
+    if (months[c].exp > 0) barOut.style.minHeight = "3px";
 
     bars.appendChild(barIn);
     bars.appendChild(barOut);
@@ -1589,7 +1703,7 @@ function saveWeekly(event) {
   var budget = Number($("weekInput").value || 0);
 
   if (budget < 0 || budget > 100000000) {
-    setMsg("weekMsg", "The weekly budget must be between ₱0 and ₱100,000,000.");
+    setMsg("weekMsg", "The weekly budget must be between " + formatMoney(0) + " and " + formatMoney(100000000) + ".");
     return;
   }
 
@@ -1621,6 +1735,7 @@ function closeMenu() {
 
 // ---------- pages: dashboard, transactions, goals, profile, settings ----------
 function showPage(page) {
+  if (editingId !== null && page !== "history") cancelEdit();   // leaving the page cancels an unfinished edit
   closeMenu();   // close the menu on phones after choosing a page
   var pages = ["Dashboard", "History", "Budgets", "Goals", "Categories", "Reports", "Profile", "Settings", "Help"];
   for (var i = 0; i < pages.length; i++) {
@@ -1652,6 +1767,7 @@ function showPage(page) {
     $("setName").value = currentUser.name;
     $("prefStart").value = (currentUser.prefs && currentUser.prefs.startPage) || "dashboard";
     $("prefRecent").value = String(getRecentCount());
+    fillCurrencyOptions();
     $("prefMsg").textContent = "";
     $("setMax").value = getMaxEntry();
     $("limitMsg").textContent = "";
@@ -1698,8 +1814,18 @@ function getRecentCount() {
 function savePrefs(event) {
   event.preventDefault();
   currentUser.prefs = { startPage: $("prefStart").value, recentCount: Number($("prefRecent").value) };
+  currentUser.currency = $("prefCurrency").value;
   saveUsers();
-  showRecent();
+
+  // show the new money sign everywhere
+  applyCurrencyLabels();
+  render();
+  showGoals();
+  showBudgets();
+  showCategories();
+  showReports();
+  fillProfile();
+  fillSettingsDetails();
   setMsg("prefMsg", "Preferences saved.", true);
 }
 
