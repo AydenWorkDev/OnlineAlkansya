@@ -105,7 +105,7 @@ var legalPages = {
     ]
   },
   terms: {
-    title: "Terms",
+    title: "Terms of Use",
     updated: "Last updated: November 2026",
     sections: [
       ["Purpose of the app", "Online Alkansya is a personal finance tracking tool for budgeting and learning. It is not a bank or a payment service. It does not store, transfer or process real money."],
@@ -154,8 +154,41 @@ document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") closeLegal();
 });
 
+// ---------- home page: mobile menu (hamburger) ----------
+function setNav(open) {
+  var menu = $("navMenu");
+  var burger = $("navBurger");
+  if (!menu || !burger) return;
+  menu.classList.toggle("open", open);
+  burger.classList.toggle("open", open);
+  burger.setAttribute("aria-expanded", open ? "true" : "false");
+  burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+}
+
+function toggleNav() {
+  var menu = $("navMenu");
+  setNav(!(menu && menu.classList.contains("open")));
+}
+
+function closeNav() {
+  setNav(false);
+}
+
+// the menu also closes with the Esc key, when you tap outside it, or when the screen gets wide
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") closeNav();
+});
+document.addEventListener("click", function (event) {
+  var bar = document.querySelector(".l-topnav");
+  if (bar && !bar.contains(event.target)) closeNav();
+});
+window.addEventListener("resize", function () {
+  if (window.innerWidth > 860) closeNav();
+});
+
 // open the separate login or signup page
 function openAuth(newMode) {
+  closeNav();
   $("landingView").classList.add("hidden");
   $("authView").classList.remove("hidden");
   showReset(false);
