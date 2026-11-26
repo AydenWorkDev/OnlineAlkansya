@@ -15,8 +15,8 @@ var filter = "all";        // all, income or expense
 var resetStep = 1;         // step of the forgot password form
 
 var categories = {
-  income: ["Allowance", "Part-time job", "Gift Money", "Scholarship", "Other"],
-  expense: ["Food", "Transport", "Bills", "Clothing", "Mobile Load & internet", "Personal Needs", "Entertainment", "Other"]
+  income: ["Allowance", "Part-time job", "Gift Money", "Scholarship", ],
+  expense: ["Food", "Transport", "Bills", "Clothing", "Mobile Load & internet", "Personal Needs", "Entertainment"]
 };
 
 var DEFAULT_MAX = 1000000;   // biggest amount for one entry (can be changed in Settings)
@@ -99,8 +99,124 @@ var CURRENCIES = [
   { code: "NGN", symbol: "₦",   name: "Nigerian Naira" },
   { code: "PKR", symbol: "Rs",  name: "Pakistani Rupee" },
   { code: "BDT", symbol: "৳",   name: "Bangladeshi Taka" },
-  { code: "TRY", symbol: "₺",   name: "Turkish Lira" }
+  { code: "TRY", symbol: "₺",   name: "Turkish Lira" },
+  { code: "TWD", symbol: "NT$", name: "New Taiwan Dollar" },
+  { code: "LKR", symbol: "Rs",  name: "Sri Lankan Rupee" },
+  { code: "NPR", symbol: "Rs",  name: "Nepalese Rupee" },
+  { code: "KHR", symbol: "៛",   name: "Cambodian Riel", decimals: 0 },
+  { code: "MMK", symbol: "K",   name: "Myanmar Kyat" },
+  { code: "BND", symbol: "B$",  name: "Brunei Dollar" },
+  { code: "EGP", symbol: "E£",  name: "Egyptian Pound" },
+  { code: "KES", symbol: "KSh", name: "Kenyan Shilling" },
+  { code: "GHS", symbol: "GH₵", name: "Ghanaian Cedi" },
+  { code: "PLN", symbol: "zł",  name: "Polish Zloty" },
+  { code: "CZK", symbol: "Kč",  name: "Czech Koruna" },
+  { code: "HUF", symbol: "Ft",  name: "Hungarian Forint" },
+  { code: "RON", symbol: "lei", name: "Romanian Leu" },
+  { code: "SEK", symbol: "kr",  name: "Swedish Krona" },
+  { code: "NOK", symbol: "kr",  name: "Norwegian Krone" },
+  { code: "DKK", symbol: "kr",  name: "Danish Krone" },
+  { code: "RUB", symbol: "₽",   name: "Russian Ruble" },
+  { code: "UAH", symbol: "₴",   name: "Ukrainian Hryvnia" },
+  { code: "ILS", symbol: "₪",   name: "Israeli Shekel" },
+  { code: "QAR", symbol: "QR",  name: "Qatari Riyal" },
+  { code: "KWD", symbol: "KD",  name: "Kuwaiti Dinar" },
+  { code: "PEN", symbol: "S/",  name: "Peruvian Sol" },
+  { code: "ARS", symbol: "$",   name: "Argentine Peso" },
+  { code: "CLP", symbol: "$",   name: "Chilean Peso", decimals: 0 },
+  { code: "COP", symbol: "$",   name: "Colombian Peso" }
 ];
+
+// countries and the currency each one uses (the country picked after sign up decides the money sign)
+var COUNTRIES = (
+  "Argentina|ARS,Australia|AUD,Austria|EUR,Bangladesh|BDT,Belgium|EUR,Brazil|BRL,Brunei|BND,Cambodia|KHR,Canada|CAD," +
+  "Chile|CLP,China|CNY,Colombia|COP,Croatia|EUR,Cyprus|EUR,Czech Republic|CZK,Denmark|DKK,Egypt|EGP,Estonia|EUR," +
+  "Finland|EUR,France|EUR,Germany|EUR,Ghana|GHS,Greece|EUR,Hong Kong|HKD,Hungary|HUF,India|INR,Indonesia|IDR," +
+  "Ireland|EUR,Israel|ILS,Italy|EUR,Japan|JPY,Kenya|KES,Kuwait|KWD,Latvia|EUR,Lithuania|EUR,Luxembourg|EUR," +
+  "Malaysia|MYR,Malta|EUR,Mexico|MXN,Myanmar|MMK,Nepal|NPR,Netherlands|EUR,New Zealand|NZD,Nigeria|NGN,Norway|NOK," +
+  "Pakistan|PKR,Peru|PEN,Philippines|PHP,Poland|PLN,Portugal|EUR,Qatar|QAR,Romania|RON,Russia|RUB,Saudi Arabia|SAR," +
+  "Singapore|SGD,Slovakia|EUR,Slovenia|EUR,South Africa|ZAR,South Korea|KRW,Spain|EUR,Sri Lanka|LKR,Sweden|SEK," +
+  "Switzerland|CHF,Taiwan|TWD,Thailand|THB,Turkey|TRY,Ukraine|UAH,United Arab Emirates|AED,United Kingdom|GBP," +
+  "United States|USD,Vietnam|VND,Other country|USD"
+).split(",");
+
+
+function currencyForCountry(name) {
+  for (var i = 0; i < COUNTRIES.length; i++) {
+    var parts = COUNTRIES[i].split("|");
+    if (parts[0] === name) return parts[1];
+  }
+  return "USD";
+}
+
+function currencyByCode(code) {
+  for (var i = 0; i < CURRENCIES.length; i++) {
+    if (CURRENCIES[i].code === code) return CURRENCIES[i];
+  }
+  return CURRENCIES[0];
+}
+
+// fill a country list and select one
+function fillCountryOptions(selectId, selected) {
+  var select = $(selectId);
+  select.innerHTML = "";
+  for (var i = 0; i < COUNTRIES.length; i++) {
+    var option = document.createElement("option");
+    option.value = COUNTRIES[i].split("|")[0];
+    option.textContent = option.value;
+    select.appendChild(option);
+  }
+  select.value = selected || "Philippines";
+}
+
+// the country of the logged in user (users created before this feature have none)
+function getCountry() {
+  return (currentUser && currentUser.country) || "";
+}
+
+// show the money sign of the country that is selected in the pop-up
+function updateCountryPreview() {
+  var cur = currencyByCode(currencyForCountry($("countrySelect").value));
+  var sign = (cur.symbol.length > 1 && /\p{L}$/u.test(cur.symbol)) ? cur.symbol + " " : cur.symbol;
+  var digits = (cur.decimals === 0) ? 0 : 2;
+  $("countrySymbol").textContent = cur.symbol;
+  $("countryCurrency").textContent = cur.name + " (" + cur.code + ")";
+  $("countryExample").textContent = sign + (1250).toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+// pop-up on the dashboard after sign up / log in: "Where are you from?"
+// (shown until the user has picked a country; the country decides the money sign)
+function openCountry() {
+  var first = currentUser ? currentUser.name.split(" ")[0] : "";
+  $("countryTitle").textContent = first ? "Welcome, " + first + "! Where are you from?" : "Welcome! Where are you from?";
+  fillCountryOptions("countrySelect", "Philippines");
+  updateCountryPreview();
+  $("countryModal").classList.remove("hidden");
+  document.body.classList.add("menu-open");     // stop the page behind from scrolling
+  $("countrySelect").focus();
+}
+
+function saveCountry() {
+  if (currentUser === null) return;
+  var country = $("countrySelect").value;
+  var cur = currencyByCode(currencyForCountry(country));
+  currentUser.country = country;
+  currentUser.currency = cur.code;
+  saveUsers();
+
+  $("countryModal").classList.add("hidden");
+  document.body.classList.remove("menu-open");
+
+  // every amount on the screen now uses the new money sign
+  applyCurrencyLabels();
+  render();
+  fillSettingsDetails();
+}
+
+// in Settings: choosing a country also picks its currency (it can still be changed below)
+function syncCurrencyWithCountry() {
+  $("prefCurrency").value = currencyForCountry($("prefCountry").value);
+}
 
 // the currency of the logged in user (Philippine Peso by default)
 function getCurrency() {
@@ -118,12 +234,14 @@ function sym() {
 // the money sign as it is written in front of a number ("RM 50", "$50")
 function moneySign() {
   var s = sym();
-  return (s.length > 1 && /[A-Za-z]$/.test(s)) ? s + " " : s;
+  return (s.length > 1 && /\p{L}$/u.test(s)) ? s + " " : s;
 }
 
 function formatMoney(number) {
   var digits = (getCurrency().decimals === 0) ? 0 : 2;
-  return moneySign() + Number(number).toLocaleString("en-US", { maximumFractionDigits: digits });
+  var n = Number(number);
+  var shown = (digits === 2 && Math.abs(n % 1) > 0.0001) ? 2 : 0;   // cents are always written with two digits: 1,250.50
+  return moneySign() + n.toLocaleString("en-US", { minimumFractionDigits: shown, maximumFractionDigits: digits });
 }
 
 // texts that mention the money sign (placeholders and labels)
@@ -191,7 +309,7 @@ var legalPages = {
   },
   copyright: {
     title: "Copyright",
-    updated: "© 2026 Online Alkansya. All Rights Reserved.",
+    updated: "© 2026 AydenWorkDev. | Online Alkansya. All Rights Reserved.",
     sections: [
       ["Ownership", "The name, logo, design, text and source code of Online Alkansya are protected by copyright."],
       ["Permission", "You may not copy, republish or distribute any part of the app or this website without permission from its owner."],
@@ -357,6 +475,7 @@ function handleAuth(event) {
     saveUsers();
 
     // account created: clear the form and go back to the login tab
+    // (the country pop-up appears on the dashboard after the first log in)
     $("authForm").reset();
     setMode("login");
     $("email").value = email;   // keep the email so they only type the password
@@ -458,6 +577,8 @@ function startApp(user) {
   setRange("all");
   showPage((currentUser.prefs && currentUser.prefs.startPage) || "dashboard");
   render();
+
+  if (!getCountry()) openCountry();   // first log in: ask for the country (decides the money sign)
 }
 
 function logout() {
@@ -1768,6 +1889,7 @@ function showPage(page) {
     $("prefStart").value = (currentUser.prefs && currentUser.prefs.startPage) || "dashboard";
     $("prefRecent").value = String(getRecentCount());
     fillCurrencyOptions();
+    fillCountryOptions("prefCountry", getCountry() || "Philippines");
     $("prefMsg").textContent = "";
     $("setMax").value = getMaxEntry();
     $("limitMsg").textContent = "";
@@ -1799,6 +1921,7 @@ function fillProfile() {
   $("pEmail").textContent = currentUser.email;
   $("dName").textContent = currentUser.name;
   $("dEmail").textContent = currentUser.email;
+  $("dCountry").textContent = getCountry() || "Not set";
   $("dSince").textContent = currentUser.joined || "Not available";
   $("dCount").textContent = transactions.length;
   $("dIncome").textContent = formatMoney(income);
@@ -1814,6 +1937,7 @@ function getRecentCount() {
 function savePrefs(event) {
   event.preventDefault();
   currentUser.prefs = { startPage: $("prefStart").value, recentCount: Number($("prefRecent").value) };
+  currentUser.country = $("prefCountry").value;
   currentUser.currency = $("prefCurrency").value;
   saveUsers();
 
@@ -1837,6 +1961,8 @@ function fillSettingsDetails() {
   $("setDetEmail").textContent = currentUser.email;
   $("setDetName2").textContent = currentUser.name;
   $("setDetEmail2").textContent = currentUser.email;
+  $("setDetCountry").textContent = getCountry() || "Not set";
+  $("setDetCurrency").textContent = getCurrency().symbol + " " + getCurrency().code;
   $("setDetSince").textContent = currentUser.joined || "Not available";
   $("setDetTx").textContent = transactions.length;
   $("setDetGoals").textContent = goals.length;

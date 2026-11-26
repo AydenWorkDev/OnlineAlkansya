@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Alkansya</title>
   <meta name="description" content="Online Alkansya is a simple personal finance tracker for students. Record your income and expenses, set budgets and save for what you want.">
   <meta name="theme-color" content="#172554">
   <link rel="icon" href="Logo/OnlineAlkanysa_Logo.png">
+  <!-- Inter: a clean, professional font used by many finance and software websites -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <title>Online Alkansya</title>
 </head>
 <body>
 
@@ -45,7 +46,7 @@
     <section class="l-hero" id="home">
       <div class="l-hero-inner">
         <div>
-          <!-- <span class="l-badge">Personal Tracker</span> -->
+          <span class="l-badge">Personal Tracker</span>
           <h1>Track your money. Save for what you want.</h1>
           <p>Online Alkansya is a simple personal finance tracker designed especially for students. Record your allowance, track your daily spending, and set savings goals for the things you want to buy.</p>
           <div class="l-hero-btns">
@@ -220,7 +221,7 @@
             <div class="shot-bar"><i></i><i></i><i></i></div>
             <div class="shot-screen">
               <img src="Logo/Budget.jpg" alt="Budgets page" onerror="this.parentNode.classList.add('no-img')">
-              <div class="shot-placeholder">Put your Budgets screenshot here:<br>Logo/Budget.png</div>
+              <div class="shot-placeholder">Put your Budgets screenshot here:<br>Logo/budgets.png</div>
             </div>
           </div>
         </div>
@@ -330,7 +331,7 @@
       </div>
       <div class="l-footer-bottom">
         <p class="l-disclaimer">Online Alkansya is a personal finance tracking application. It does not store, transfer, or process actual money. All amounts are entered manually by users for personal tracking only.</p>
-        <p class="l-copy">© 2026 Online Alkansya. Designed and Developed by Cris Allen Tica. All Rights Reserved.</p>
+        <p class="l-copy">© 2026 AydenWorkDev. | Online Alkansya. All Rights Reserved.</p>
       </div>
     </footer>
   </div>
@@ -685,7 +686,7 @@
       </section>
 
       <div class="columns">
-        <section class="box"><h3>Expense categories</h3><div id="catExpense"></div></section>
+        <section class="box"><h3>Expenses categories</h3><div id="catExpense"></div></section>
         <section class="box"><h3>Income categories</h3><div id="catIncome"></div></section>
       </div>
     </main>
@@ -758,6 +759,7 @@
         <h3>Account details</h3>
         <div class="detail"><span>Full name</span><b id="dName"></b></div>
         <div class="detail"><span>Email</span><b id="dEmail"></b></div>
+        <div class="detail"><span>Country</span><b id="dCountry"></b></div>
         <div class="detail"><span>Member since</span><b id="dSince"></b></div>
       </section>
     </main>
@@ -780,6 +782,8 @@
         </div>
         <div class="detail"><span>Full name</span><b id="setDetName2"></b></div>
         <div class="detail"><span>Email</span><b id="setDetEmail2"></b></div>
+        <div class="detail"><span>Country</span><b id="setDetCountry"></b></div>
+        <div class="detail"><span>Currency</span><b id="setDetCurrency"></b></div>
         <div class="detail"><span>Member since</span><b id="setDetSince"></b></div>
         <div class="detail"><span>Transactions recorded</span><b id="setDetTx"></b></div>
         <div class="detail"><span>Savings goals</span><b id="setDetGoals"></b></div>
@@ -807,6 +811,8 @@
             <option value="5">5</option>
             <option value="10">10</option>
           </select>
+          <label class="field-label" for="prefCountry">Country</label>
+          <select id="prefCountry" onchange="syncCurrencyWithCountry()"></select>
           <label class="field-label" for="prefCurrency">Currency (money sign)</label>
           <select id="prefCurrency"></select>
           <p class="note">Changes the money sign shown everywhere in the app. Your amounts are not converted.</p>
@@ -921,6 +927,30 @@
         </div>
       </div>
     </main>
+    </div>
+  </div>
+
+  <!-- ===== COUNTRY POP-UP (shown on the dashboard after sign up and log in; the country decides the money sign) ===== -->
+  <div id="countryModal" class="modal hidden">
+    <div class="modal-box country-box" role="dialog" aria-modal="true" aria-labelledby="countryTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="countryTitle">Welcome! Where are you from?</h2>
+          <p class="note">Your country decides the money sign used in your tracker. You can change it later in Settings.</p>
+        </div>
+      </div>
+      <div class="modal-body country-body">
+        <label class="field-label" for="countrySelect">Country</label>
+        <select id="countrySelect" onchange="updateCountryPreview()"></select>
+        <div class="country-preview">
+          <span class="country-sign" id="countrySymbol"></span>
+          <div>
+            <b id="countryCurrency"></b>
+            <small>Example: <span id="countryExample"></span></small>
+          </div>
+        </div>
+        <button type="button" class="country-btn" onclick="saveCountry()">Continue</button>
+      </div>
     </div>
   </div>
 
